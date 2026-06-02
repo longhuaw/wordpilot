@@ -1,0 +1,1527 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="WordPilot">
+    <meta name="theme-color" content="#3498db">
+    <meta name="description" content="WordPilot - 你的英语学习助手，每天轻松记忆单词">
+    
+    
+    
+    <title>WordPilot - 英语学习助手</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>﻿/* WordPilot - 英语学习助手样式 */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+:root {
+    --primary: #3498db;
+    --primary-dark: #2980b9;
+    --success: #2ecc71;
+    --danger: #e74c3c;
+    --warning: #f39c12;
+    --bg: #f5f5f5;
+    --card: #ffffff;
+    --text: #2c3e50;
+    --text-secondary: #7f8c8d;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding-bottom: 80px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 底部导航 */
+.tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: var(--card);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding-bottom: env(safe-area-inset-bottom);
+    z-index: 100;
+}
+
+.tab-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 11px;
+    transition: color 0.2s;
+}
+
+.tab-item.active {
+    color: var(--primary);
+}
+
+.tab-item i {
+    font-size: 22px;
+}
+
+/* 页面容器 */
+.page {
+    display: none;
+    padding: 16px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.page.active {
+    display: block;
+}
+
+/* 卡片样式 */
+.card {
+    background: var(--card);
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+}
+
+/* 首页样式 */
+.greeting {
+    text-align: center;
+    padding: 20px 0;
+}
+
+.greeting h2 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.greeting p {
+    color: var(--text-secondary);
+    font-size: 14px;
+}
+
+.streak-card {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    color: white;
+    border-radius: 16px;
+    padding: 20px;
+    margin-bottom: 16px;
+    box-shadow: 0 4px 15px rgba(243,156,18,0.3);
+}
+
+.streak-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.streak-header i {
+    font-size: 28px;
+}
+
+.streak-days {
+    font-size: 32px;
+    font-weight: bold;
+}
+
+.week-calendar {
+    display: flex;
+    justify-content: space-between;
+}
+
+.day-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.day-item span {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.day-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.day-circle.studied {
+    background: white;
+    color: var(--warning);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.stat-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    box-shadow: var(--shadow);
+}
+
+.stat-item i {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.stat-item.blue i { color: var(--primary); }
+.stat-item.red i { color: var(--danger); }
+.stat-item.green i { color: var(--success); }
+
+.stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+}
+
+.btn {
+    display: block;
+    width: 100%;
+    padding: 16px;
+    border: none;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    text-align: center;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.btn:active {
+    transform: scale(0.98);
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    box-shadow: 0 4px 15px rgba(52,152,219,0.3);
+}
+
+.btn-success {
+    background: var(--success);
+    color: white;
+}
+
+.btn-danger {
+    background: var(--danger);
+    color: white;
+}
+
+.btn-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 16px;
+}
+
+/* 学习页面 */
+.progress-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.progress-track {
+    height: 6px;
+    background: #eee;
+    border-radius: 3px;
+    margin-bottom: 16px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--primary);
+    border-radius: 3px;
+    transition: width 0.3s;
+}
+
+.flash-card {
+    background: var(--card);
+    border-radius: 20px;
+    padding: 30px 20px;
+    text-align: center;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+    min-height: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.word-english {
+    font-size: 42px;
+    font-weight: bold;
+    margin-bottom: 12px;
+}
+
+.word-phonetic {
+    font-size: 18px;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+}
+
+.btn-speak {
+    background: none;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    padding: 10px 24px;
+    border-radius: 25px;
+    font-size: 16px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px;
+    transition: all 0.2s;
+}
+
+.btn-speak:active {
+    background: var(--primary);
+    color: white;
+}
+
+.divider {
+    width: 100%;
+    height: 1px;
+    background: #eee;
+    margin: 20px 0;
+}
+
+.btn-show-answer {
+    background: var(--warning);
+    color: white;
+    border: none;
+    padding: 14px 40px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-show-answer:active {
+    transform: scale(0.96);
+}
+
+.answer-section {
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.word-chinese {
+    font-size: 32px;
+    font-weight: 600;
+    color: var(--primary);
+    margin-bottom: 12px;
+}
+
+.word-example {
+    font-size: 16px;
+    color: var(--text-secondary);
+    background: #f8f9fa;
+    padding: 12px 16px;
+    border-radius: 10px;
+    margin-bottom: 16px;
+}
+
+.mastery-badge {
+    display: inline-block;
+    padding: 6px 16px;
+    border-radius: 20px;
+    font-size: 14px;
+    color: white;
+}
+
+/* 词库页面 */
+.search-box {
+    position: relative;
+    margin-bottom: 16px;
+}
+
+.search-box input {
+    width: 100%;
+    padding: 12px 16px 12px 44px;
+    border: 1px solid #ddd;
+    border-radius: 12px;
+    font-size: 16px;
+    background: var(--card);
+}
+
+.search-box i {
+    position: absolute;
+    left: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+}
+
+.tag-filter {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+    margin-bottom: 16px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.tag-filter::-webkit-scrollbar {
+    display: none;
+}
+
+.tag-btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 20px;
+    font-size: 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    background: #eee;
+    color: var(--text);
+    transition: all 0.2s;
+}
+
+.tag-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.word-list {
+    list-style: none;
+}
+
+.word-item {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow);
+}
+
+.word-info h3 {
+    font-size: 18px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.word-info p {
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: 4px;
+}
+
+.word-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.mastery-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+}
+
+.btn-icon {
+    background: none;
+    border: none;
+    color: var(--primary);
+    font-size: 20px;
+    cursor: pointer;
+    padding: 8px;
+}
+
+/* 统计页面 */
+.section-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    padding-left: 4px;
+}
+
+.stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.stat-row:last-child {
+    border-bottom: none;
+}
+
+.stat-row-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stat-row-left i {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+}
+
+.stat-row-right {
+    font-weight: 600;
+}
+
+.mastery-bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+}
+
+.mastery-bar-label {
+    width: 40px;
+    font-size: 14px;
+}
+
+.mastery-bar-track {
+    flex: 1;
+    height: 8px;
+    background: #eee;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.mastery-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.5s;
+}
+
+.mastery-bar-count {
+    width: 30px;
+    text-align: right;
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.session-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.session-info {
+    font-size: 14px;
+}
+
+.session-info span {
+    color: var(--text-secondary);
+    font-size: 12px;
+}
+
+.session-accuracy {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* 完成页面 */
+.complete-view {
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.complete-view i {
+    font-size: 60px;
+    color: #f1c40f;
+    margin-bottom: 20px;
+}
+
+.complete-view h2 {
+    font-size: 28px;
+    margin-bottom: 24px;
+}
+
+.complete-stats {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    background: #f8f9fa;
+    padding: 20px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+}
+
+.complete-stat {
+    text-align: center;
+}
+
+.complete-stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 4px;
+}
+
+.complete-stat-value.blue { color: var(--primary); }
+.complete-stat-value.green { color: var(--success); }
+.complete-stat-value.orange { color: var(--warning); }
+
+.complete-stat-label {
+    font-size: 14px;
+    color: var(--text-secondary);
+}
+
+.encouragement {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+    line-height: 1.6;
+}
+
+/* 空状态 */
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.empty-state i {
+    font-size: 60px;
+    color: var(--success);
+    margin-bottom: 20px;
+}
+
+.empty-state h2 {
+    margin-bottom: 12px;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    margin-bottom: 30px;
+}
+
+/* 隐藏类 */
+.hidden {
+    display: none !important;
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== 首页 ==================== -->
+<div id="page-home" class="page active">
+    <div class="greeting">
+        <h2 id="greeting-text">早上好 ☀️</h2>
+        <p>坚持学习，每天进步一点点 💪</p>
+    </div>
+    <div class="streak-card">
+        <div class="streak-header">
+            <div>
+                <i class="fas fa-fire"></i>
+                <span style="font-size:18px;font-weight:600;margin-left:8px">连续学习</span>
+            </div>
+            <span id="streak-days" class="streak-days">0</span>
+        </div>
+        <div style="font-size:14px;opacity:0.9;margin-bottom:12px">天</div>
+        <div id="week-calendar" class="week-calendar"></div>
+    </div>
+    <div class="stats-grid">
+        <div class="stat-item blue">
+            <i class="fas fa-book"></i>
+            <div id="today-reviewed" class="stat-value">0</div>
+            <div class="stat-label">今日已学</div>
+        </div>
+        <div class="stat-item red">
+            <i class="fas fa-clock"></i>
+            <div id="due-count" class="stat-value">0</div>
+            <div class="stat-label">待复习</div>
+        </div>
+        <div class="stat-item green">
+            <i class="fas fa-font"></i>
+            <div id="total-words" class="stat-value">0</div>
+            <div class="stat-label">总词汇</div>
+        </div>
+    </div>
+    <button class="btn btn-primary" onclick="app.startStudy()">
+        <i class="fas fa-play" style="margin-right:8px"></i> 开始今日学习
+    </button>
+</div>
+
+<!-- ==================== 学习页面 ==================== -->
+<div id="study-view" class="page">
+    <div class="progress-bar">
+        <span id="study-progress">进度: 0/0</span>
+        <span id="study-stats">正确: 0 错误: 0</span>
+    </div>
+    <div class="progress-track">
+        <div id="progress-fill" class="progress-fill" style="width:0%"></div>
+    </div>
+    <div class="flash-card">
+        <div id="card-english" class="word-english">hello</div>
+        <div id="card-phonetic" class="word-phonetic">/həˈloʊ/</div>
+        <button class="btn-speak" onclick="app.speakWord()">
+            <i class="fas fa-volume-up"></i> 朗读
+        </button>
+        <div class="divider"></div>
+        <div id="answer-section" class="answer-section hidden">
+            <div id="card-chinese" class="word-chinese">你好</div>
+            <div id="card-example" class="word-example">Hello, how are you?</div>
+            <span id="card-mastery" class="mastery-badge">新词</span>
+        </div>
+        <button id="btn-show-answer" class="btn-show-answer" onclick="app.showAnswerClick()">
+            查看答案
+        </button>
+        <div id="action-buttons" class="btn-row hidden">
+            <button class="btn btn-danger" onclick="app.recordAnswer(false)">
+                <i class="fas fa-times" style="margin-right:6px"></i> 不认识
+            </button>
+            <button class="btn btn-success" onclick="app.recordAnswer(true)">
+                <i class="fas fa-check" style="margin-right:6px"></i> 认识
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 空状态 ==================== -->
+<div id="empty-view" class="page">
+    <div class="empty-state">
+        <i class="fas fa-check-circle"></i>
+        <h2>太棒了！</h2>
+        <p>目前没有需要复习的单词，休息一下吧！</p>
+        <button class="btn btn-primary" onclick="app.backToHome()">返回首页</button>
+    </div>
+</div>
+
+<!-- ==================== 完成页面 ==================== -->
+<div id="complete-view" class="page">
+    <div class="complete-view">
+        <i class="fas fa-star"></i>
+        <h2>学习完成！</h2>
+        <div class="complete-stats">
+            <div class="complete-stat">
+                <div id="complete-total" class="complete-stat-value blue">0</div>
+                <div class="complete-stat-label">复习单词</div>
+            </div>
+            <div class="complete-stat">
+                <div id="complete-correct" class="complete-stat-value green">0</div>
+                <div class="complete-stat-label">回答正确</div>
+            </div>
+            <div class="complete-stat">
+                <div id="complete-accuracy" class="complete-stat-value orange">0%</div>
+                <div class="complete-stat-label">正确率</div>
+            </div>
+        </div>
+        <p id="encouragement" class="encouragement"></p>
+        <button class="btn btn-primary" onclick="app.backToHome()">返回首页</button>
+    </div>
+</div>
+
+<!-- ==================== 词库页面 ==================== -->
+<div id="page-words" class="page">
+    <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" placeholder="搜索单词..." oninput="app.searchWords(this.value)">
+    </div>
+    <div id="tag-filter" class="tag-filter"></div>
+    <ul id="word-list" class="word-list"></ul>
+</div>
+
+<!-- ==================== 统计页面 ==================== -->
+<div id="page-profile" class="page">
+    <div class="card">
+        <h3 class="section-title">学习概览</h3>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-font" style="color:#3498db"></i><span>总词汇量</span></div>
+            <span id="stat-total-words" class="stat-row-right">0</span>
+        </div>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-star" style="color:#2ecc71"></i><span>已掌握</span></div>
+            <span id="stat-mastered" class="stat-row-right">0</span>
+        </div>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-spinner" style="color:#e67e22"></i><span>学习中</span></div>
+            <span id="stat-learning" class="stat-row-right">0</span>
+        </div>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-plus-circle" style="color:#999"></i><span>未学习</span></div>
+            <span id="stat-new" class="stat-row-right">0</span>
+        </div>
+    </div>
+    <div class="card">
+        <h3 class="section-title">学习统计</h3>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-list" style="color:#9b59b6"></i><span>总学习次数</span></div>
+            <span id="stat-sessions" class="stat-row-right">0</span>
+        </div>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-book-open" style="color:#3498db"></i><span>总复习单词</span></div>
+            <span id="stat-total-reviewed" class="stat-row-right">0</span>
+        </div>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-chart-pie" style="color:#2ecc71"></i><span>平均正确率</span></div>
+            <span id="stat-avg-accuracy" class="stat-row-right">0%</span>
+        </div>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-clock" style="color:#e67e22"></i><span>学习总时长</span></div>
+            <span id="stat-total-time" class="stat-row-right">0分钟</span>
+        </div>
+    </div>
+    <div class="card">
+        <h3 class="section-title">掌握度分布</h3>
+        <div id="mastery-bars"></div>
+    </div>
+    <div class="card">
+        <h3 class="section-title">最近学习记录</h3>
+        <div id="recent-sessions"></div>
+    </div>
+    <div class="card">
+        <h3 class="section-title">设置</h3>
+        <div class="stat-row">
+            <div class="stat-row-left"><i class="fas fa-info-circle" style="color:#3498db"></i><span>版本</span></div>
+            <span class="stat-row-right" style="color:#999">1.0.0</span>
+        </div>
+        <div class="stat-row" style="cursor:pointer" onclick="app.resetData()">
+            <div class="stat-row-left"><i class="fas fa-redo" style="color:#e74c3c"></i><span style="color:#e74c3c">重置词汇数据</span></div>
+            <i class="fas fa-chevron-right" style="color:#ccc"></i>
+        </div>
+    </div>
+</div>
+
+<!-- ==================== 底部导航 ==================== -->
+<nav class="tab-bar">
+    <div class="tab-item active" data-tab="home">
+        <i class="fas fa-home"></i>
+        <span>首页</span>
+    </div>
+    <div class="tab-item" data-tab="words">
+        <i class="fas fa-book"></i>
+        <span>词库</span>
+    </div>
+    <div class="tab-item" data-tab="profile">
+        <i class="fas fa-user"></i>
+        <span>我的</span>
+    </div>
+</nav>
+
+<script>﻿// WordPilot - 小学基础英语词汇（90个）
+const BEGINNER_WORDS = [
+    // 基础问候
+    { english: "hello", chinese: "你好", phonetic: "/həˈloʊ/", example: "Hello, how are you?", tags: ["问候"] },
+    { english: "goodbye", chinese: "再见", phonetic: "/ɡʊdˈbaɪ/", example: "Goodbye, see you tomorrow.", tags: ["问候"] },
+    { english: "please", chinese: "请", phonetic: "/pliːz/", example: "Please sit down.", tags: ["礼貌"] },
+    { english: "thank", chinese: "谢谢", phonetic: "/θæŋk/", example: "Thank you very much.", tags: ["礼貌"] },
+    { english: "sorry", chinese: "对不起", phonetic: "/ˈsɒri/", example: "I am sorry.", tags: ["礼貌"] },
+    
+    // 人称代词
+    { english: "I", chinese: "我", phonetic: "/aɪ/", example: "I am a student.", tags: ["代词"] },
+    { english: "you", chinese: "你", phonetic: "/juː/", example: "You are my friend.", tags: ["代词"] },
+    { english: "he", chinese: "他", phonetic: "/hiː/", example: "He is a boy.", tags: ["代词"] },
+    { english: "she", chinese: "她", phonetic: "/ʃiː/", example: "She is a girl.", tags: ["代词"] },
+    { english: "we", chinese: "我们", phonetic: "/wiː/", example: "We are happy.", tags: ["代词"] },
+    
+    // 数字
+    { english: "one", chinese: "一", phonetic: "/wʌn/", example: "I have one apple.", tags: ["数字"] },
+    { english: "two", chinese: "二", phonetic: "/tuː/", example: "I see two birds.", tags: ["数字"] },
+    { english: "three", chinese: "三", phonetic: "/θriː/", example: "There are three cats.", tags: ["数字"] },
+    { english: "four", chinese: "四", phonetic: "/fɔːr/", example: "I have four books.", tags: ["数字"] },
+    { english: "five", chinese: "五", phonetic: "/faɪv/", example: "Five stars in the sky.", tags: ["数字"] },
+    { english: "six", chinese: "六", phonetic: "/sɪks/", example: "Six dogs are playing.", tags: ["数字"] },
+    { english: "seven", chinese: "七", phonetic: "/ˈsevən/", example: "Seven days in a week.", tags: ["数字"] },
+    { english: "eight", chinese: "八", phonetic: "/eɪt/", example: "I am eight years old.", tags: ["数字"] },
+    { english: "nine", chinese: "九", phonetic: "/naɪn/", example: "Nine pencils on the desk.", tags: ["数字"] },
+    { english: "ten", chinese: "十", phonetic: "/ten/", example: "I count to ten.", tags: ["数字"] },
+    
+    // 颜色
+    { english: "red", chinese: "红色", phonetic: "/red/", example: "The apple is red.", tags: ["颜色"] },
+    { english: "blue", chinese: "蓝色", phonetic: "/bluː/", example: "The sky is blue.", tags: ["颜色"] },
+    { english: "green", chinese: "绿色", phonetic: "/ɡriːn/", example: "The tree is green.", tags: ["颜色"] },
+    { english: "yellow", chinese: "黄色", phonetic: "/ˈjeloʊ/", example: "The sun is yellow.", tags: ["颜色"] },
+    { english: "black", chinese: "黑色", phonetic: "/blæk/", example: "The cat is black.", tags: ["颜色"] },
+    { english: "white", chinese: "白色", phonetic: "/waɪt/", example: "The snow is white.", tags: ["颜色"] },
+    
+    // 家庭
+    { english: "mother", chinese: "妈妈", phonetic: "/ˈmʌðər/", example: "I love my mother.", tags: ["家庭"] },
+    { english: "father", chinese: "爸爸", phonetic: "/ˈfɑːðər/", example: "My father is tall.", tags: ["家庭"] },
+    { english: "sister", chinese: "姐妹", phonetic: "/ˈsɪstər/", example: "My sister is nice.", tags: ["家庭"] },
+    { english: "brother", chinese: "兄弟", phonetic: "/ˈbrʌðər/", example: "My brother is funny.", tags: ["家庭"] },
+    { english: "family", chinese: "家庭", phonetic: "/ˈfæməli/", example: "I love my family.", tags: ["家庭"] },
+    
+    // 动物
+    { english: "cat", chinese: "猫", phonetic: "/kæt/", example: "The cat is cute.", tags: ["动物"] },
+    { english: "dog", chinese: "狗", phonetic: "/dɒɡ/", example: "The dog is friendly.", tags: ["动物"] },
+    { english: "bird", chinese: "鸟", phonetic: "/bɜːrd/", example: "The bird can fly.", tags: ["动物"] },
+    { english: "fish", chinese: "鱼", phonetic: "/fɪʃ/", example: "The fish can swim.", tags: ["动物"] },
+    { english: "rabbit", chinese: "兔子", phonetic: "/ˈræbɪt/", example: "The rabbit is white.", tags: ["动物"] },
+    
+    // 食物
+    { english: "apple", chinese: "苹果", phonetic: "/ˈæpəl/", example: "I like red apples.", tags: ["食物"] },
+    { english: "bread", chinese: "面包", phonetic: "/bred/", example: "I eat bread for breakfast.", tags: ["食物"] },
+    { english: "milk", chinese: "牛奶", phonetic: "/mɪlk/", example: "I drink milk every day.", tags: ["食物"] },
+    { english: "water", chinese: "水", phonetic: "/ˈwɔːtər/", example: "Please give me water.", tags: ["食物"] },
+    { english: "rice", chinese: "米饭", phonetic: "/raɪs/", example: "I like eating rice.", tags: ["食物"] },
+    
+    // 身体
+    { english: "head", chinese: "头", phonetic: "/hed/", example: "I nod my head.", tags: ["身体"] },
+    { english: "hand", chinese: "手", phonetic: "/hænd/", example: "Wave your hand.", tags: ["身体"] },
+    { english: "eye", chinese: "眼睛", phonetic: "/aɪ/", example: "I have two eyes.", tags: ["身体"] },
+    { english: "nose", chinese: "鼻子", phonetic: "/noʊz/", example: "Touch your nose.", tags: ["身体"] },
+    { english: "mouth", chinese: "嘴巴", phonetic: "/maʊθ/", example: "Open your mouth.", tags: ["身体"] },
+    
+    // 学习用品
+    { english: "book", chinese: "书", phonetic: "/bʊk/", example: "I read a book.", tags: ["学习"] },
+    { english: "pen", chinese: "钢笔", phonetic: "/pen/", example: "I write with a pen.", tags: ["学习"] },
+    { english: "pencil", chinese: "铅笔", phonetic: "/ˈpensəl/", example: "This is my pencil.", tags: ["学习"] },
+    { english: "school", chinese: "学校", phonetic: "/skuːl/", example: "I go to school.", tags: ["学习"] },
+    { english: "teacher", chinese: "老师", phonetic: "/ˈtiːtʃər/", example: "My teacher is kind.", tags: ["学习"] },
+    
+    // 日常动词
+    { english: "eat", chinese: "吃", phonetic: "/iːt/", example: "I eat breakfast.", tags: ["动词"] },
+    { english: "drink", chinese: "喝", phonetic: "/drɪŋk/", example: "I drink water.", tags: ["动词"] },
+    { english: "go", chinese: "去", phonetic: "/ɡoʊ/", example: "Let us go home.", tags: ["动词"] },
+    { english: "come", chinese: "来", phonetic: "/kʌm/", example: "Come here, please.", tags: ["动词"] },
+    { english: "run", chinese: "跑", phonetic: "/rʌn/", example: "I can run fast.", tags: ["动词"] },
+    { english: "walk", chinese: "走", phonetic: "/wɔːk/", example: "Let us walk together.", tags: ["动词"] },
+    { english: "see", chinese: "看", phonetic: "/siː/", example: "I can see the moon.", tags: ["动词"] },
+    { english: "hear", chinese: "听", phonetic: "/hɪr/", example: "I hear music.", tags: ["动词"] },
+    { english: "like", chinese: "喜欢", phonetic: "/laɪk/", example: "I like ice cream.", tags: ["动词"] },
+    { english: "love", chinese: "爱", phonetic: "/lʌv/", example: "I love my parents.", tags: ["动词"] },
+    
+    // 形容词
+    { english: "big", chinese: "大的", phonetic: "/bɪɡ/", example: "The elephant is big.", tags: ["形容词"] },
+    { english: "small", chinese: "小的", phonetic: "/smɔːl/", example: "The mouse is small.", tags: ["形容词"] },
+    { english: "good", chinese: "好的", phonetic: "/ɡʊd/", example: "You are a good boy.", tags: ["形容词"] },
+    { english: "bad", chinese: "坏的", phonetic: "/bæd/", example: "This is a bad day.", tags: ["形容词"] },
+    { english: "happy", chinese: "开心的", phonetic: "/ˈhæpi/", example: "I am very happy.", tags: ["形容词"] },
+    { english: "sad", chinese: "伤心的", phonetic: "/sæd/", example: "Don't be sad.", tags: ["形容词"] },
+    { english: "hot", chinese: "热的", phonetic: "/hɒt/", example: "Today is very hot.", tags: ["形容词"] },
+    { english: "cold", chinese: "冷的", phonetic: "/koʊld/", example: "Winter is cold.", tags: ["形容词"] },
+    
+    // 时间
+    { english: "morning", chinese: "早上", phonetic: "/ˈmɔːrnɪŋ/", example: "Good morning!", tags: ["时间"] },
+    { english: "afternoon", chinese: "下午", phonetic: "/ˌæftərˈnuːn/", example: "Good afternoon!", tags: ["时间"] },
+    { english: "evening", chinese: "晚上", phonetic: "/ˈiːvnɪŋ/", example: "Good evening!", tags: ["时间"] },
+    { english: "today", chinese: "今天", phonetic: "/təˈdeɪ/", example: "Today is Monday.", tags: ["时间"] },
+    { english: "tomorrow", chinese: "明天", phonetic: "/təˈmɒroʊ/", example: "See you tomorrow.", tags: ["时间"] },
+    
+    // 天气
+    { english: "sunny", chinese: "晴朗的", phonetic: "/ˈsʌni/", example: "It is sunny today.", tags: ["天气"] },
+    { english: "rainy", chinese: "下雨的", phonetic: "/ˈreɪni/", example: "It is rainy outside.", tags: ["天气"] },
+    { english: "cloudy", chinese: "多云的", phonetic: "/ˈklaʊdi/", example: "The sky is cloudy.", tags: ["天气"] },
+    
+    // 地点
+    { english: "home", chinese: "家", phonetic: "/hoʊm/", example: "I want to go home.", tags: ["地点"] },
+    { english: "park", chinese: "公园", phonetic: "/pɑːrk/", example: "Let us go to the park.", tags: ["地点"] },
+    { english: "shop", chinese: "商店", phonetic: "/ʃɒp/", example: "I go to the shop.", tags: ["地点"] },
+    
+    // 其他常用词
+    { english: "yes", chinese: "是", phonetic: "/jes/", example: "Yes, I understand.", tags: ["常用"] },
+    { english: "no", chinese: "不", phonetic: "/noʊ/", example: "No, thank you.", tags: ["常用"] },
+    { english: "what", chinese: "什么", phonetic: "/wɒt/", example: "What is your name?", tags: ["常用"] },
+    { english: "who", chinese: "谁", phonetic: "/huː/", example: "Who is he?", tags: ["常用"] },
+    { english: "where", chinese: "哪里", phonetic: "/weər/", example: "Where are you?", tags: ["常用"] },
+    { english: "this", chinese: "这个", phonetic: "/ðɪs/", example: "This is my book.", tags: ["常用"] },
+    { english: "that", chinese: "那个", phonetic: "/ðæt/", example: "That is a cat.", tags: ["常用"] },
+    { english: "and", chinese: "和", phonetic: "/ænd/", example: "Tom and Jerry.", tags: ["常用"] },
+    { english: "or", chinese: "或者", phonetic: "/ɔːr/", example: "Apple or banana?", tags: ["常用"] },
+    { english: "not", chinese: "不", phonetic: "/nɒt/", example: "I am not tired.", tags: ["常用"] },
+    { english: "very", chinese: "非常", phonetic: "/ˈveri/", example: "Very good!", tags: ["常用"] },
+    { english: "new", chinese: "新的", phonetic: "/njuː/", example: "I have a new bag.", tags: ["形容词"] },
+    { english: "old", chinese: "旧的/老的", phonetic: "/oʊld/", example: "This is an old book.", tags: ["形容词"] },
+    { english: "little", chinese: "小的", phonetic: "/ˈlɪtl/", example: "A little dog.", tags: ["形容词"] },
+    { english: "long", chinese: "长的", phonetic: "/lɒŋ/", example: "The snake is long.", tags: ["形容词"] },
+    { english: "short", chinese: "短的", phonetic: "/ʃɔːrt/", example: "The pencil is short.", tags: ["形容词"] },
+];
+</script>
+<script>﻿// WordPilot - 间隔重复复习引擎（SM-2算法）
+const SpacedRepetitionEngine = {
+    // 根据回答质量更新单词复习计划
+    updateWord(word, quality) {
+        const q = Math.max(0, Math.min(5, quality));
+        
+        if (q >= 3) {
+            word.correctCount++;
+            word.masteryLevel = Math.min(5, word.masteryLevel + 1);
+        } else {
+            word.wrongCount++;
+            word.masteryLevel = Math.max(0, word.masteryLevel - 1);
+        }
+        
+        word.lastReviewed = Date.now();
+        word.nextReview = this.calculateNextReview(word.masteryLevel);
+        return word;
+    },
+    
+    // 计算下次复习时间
+    calculateNextReview(masteryLevel) {
+        const now = Date.now();
+        const intervals = {
+            0: 60 * 1000,           // 1分钟后
+            1: 10 * 60 * 1000,      // 10分钟后
+            2: 24 * 60 * 60 * 1000, // 1天后
+            3: 3 * 24 * 60 * 60 * 1000, // 3天后
+            4: 7 * 24 * 60 * 60 * 1000, // 1周后
+            5: 30 * 24 * 60 * 60 * 1000  // 1个月后
+        };
+        return now + (intervals[masteryLevel] || intervals[0]);
+    },
+    
+    // 获取待复习单词
+    getDueWords(words, limit = 10) {
+        const now = Date.now();
+        return words
+            .filter(w => w.nextReview <= now)
+            .sort((a, b) => a.nextReview - b.nextReview)
+            .slice(0, limit);
+    },
+    
+    // 获取掌握度描述
+    masteryDescription(level) {
+        const descriptions = ['新词', '初识', '眼熟', '认识', '熟悉', '精通'];
+        return descriptions[level] || '未知';
+    },
+    
+    // 获取掌握度颜色
+    masteryColor(level) {
+        const colors = ['#999', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db'];
+        return colors[level] || '#999';
+    }
+};
+</script>
+<script>﻿// WordPilot - 主应用逻辑
+
+class WordPilotApp {
+    constructor() {
+        this.words = [];
+        this.sessions = [];
+        this.currentTab = 'home';
+        this.studyWords = [];
+        this.studyIndex = 0;
+        this.showAnswer = false;
+        this.correctCount = 0;
+        this.startTime = null;
+        this.searchText = '';
+        this.selectedTag = null;
+        
+        this.init();
+    }
+    
+    init() {
+        this.loadData();
+        this.setupEventListeners();
+        this.render();
+        this.updateGreeting();
+    }
+    
+    loadData() {
+        const savedWords = localStorage.getItem('wordpilot_words');
+        const savedSessions = localStorage.getItem('wordpilot_sessions');
+        
+        if (savedWords) {
+            this.words = JSON.parse(savedWords);
+        } else {
+            this.words = BEGINNER_WORDS.map((w, i) => ({
+                id: i,
+                ...w,
+                masteryLevel: 0,
+                correctCount: 0,
+                wrongCount: 0,
+                lastReviewed: null,
+                nextReview: Date.now()
+            }));
+            this.saveWords();
+        }
+        
+        this.sessions = savedSessions ? JSON.parse(savedSessions) : [];
+    }
+    
+    saveWords() {
+        localStorage.setItem('wordpilot_words', JSON.stringify(this.words));
+    }
+    
+    saveSessions() {
+        localStorage.setItem('wordpilot_sessions', JSON.stringify(this.sessions));
+    }
+    
+    setupEventListeners() {
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                this.currentTab = tab.dataset.tab;
+                this.render();
+            });
+        });
+    }
+    
+    render() {
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === this.currentTab);
+        });
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.toggle('active', page.id === 'page-' + this.currentTab);
+        });
+        
+        switch(this.currentTab) {
+            case 'home': this.renderHome(); break;
+            case 'words': this.renderWords(); break;
+            case 'profile': this.renderProfile(); break;
+        }
+    }
+    
+    renderHome() {
+        document.getElementById('streak-days').textContent = this.calculateStreak();
+        this.renderWeekCalendar();
+        
+        const todayReviewed = this.sessions.filter(s => this.isToday(s.date)).reduce((sum, s) => sum + s.wordsReviewed, 0);
+        const dueWords = SpacedRepetitionEngine.getDueWords(this.words, 100);
+        
+        document.getElementById('today-reviewed').textContent = todayReviewed;
+        document.getElementById('due-count').textContent = dueWords.length;
+        document.getElementById('total-words').textContent = this.words.length;
+    }
+    
+    renderWeekCalendar() {
+        const calendar = document.getElementById('week-calendar');
+        calendar.innerHTML = '';
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const studied = this.hasStudiedOn(date);
+            
+            const dayEl = document.createElement('div');
+            dayEl.className = 'day-item';
+            dayEl.innerHTML = '<span>' + days[date.getDay()] + '</span><div class="day-circle ' + (studied ? 'studied' : '') + '">' + (studied ? '✓' : '') + '</div>';
+            calendar.appendChild(dayEl);
+        }
+    }
+    
+    startStudy() {
+        this.studyWords = SpacedRepetitionEngine.getDueWords(this.words, 10);
+        this.studyIndex = 0;
+        this.showAnswer = false;
+        this.correctCount = 0;
+        this.startTime = Date.now();
+        
+        if (this.studyWords.length === 0) {
+            this.showEmptyState();
+            return;
+        }
+        
+        this.showStudyView();
+    }
+    
+    showStudyView() {
+        document.getElementById('page-home').classList.remove('active');
+        document.getElementById('study-view').classList.add('active');
+        this.renderStudyCard();
+    }
+    
+    showEmptyState() {
+        document.getElementById('page-home').classList.remove('active');
+        document.getElementById('empty-view').classList.add('active');
+    }
+    
+    renderStudyCard() {
+        const word = this.studyWords[this.studyIndex];
+        
+        document.getElementById('study-progress').textContent = '进度: ' + (this.studyIndex + 1) + '/' + this.studyWords.length;
+        document.getElementById('study-stats').textContent = '正确: ' + this.correctCount + ' 错误: ' + (this.studyIndex - this.correctCount);
+        document.getElementById('progress-fill').style.width = ((this.studyIndex + 1) / this.studyWords.length * 100) + '%';
+        
+        document.getElementById('card-english').textContent = word.english;
+        document.getElementById('card-phonetic').textContent = word.phonetic;
+        
+        const answerSection = document.getElementById('answer-section');
+        const btnShowAnswer = document.getElementById('btn-show-answer');
+        const actionButtons = document.getElementById('action-buttons');
+        
+        if (this.showAnswer) {
+            answerSection.classList.remove('hidden');
+            btnShowAnswer.classList.add('hidden');
+            actionButtons.classList.remove('hidden');
+            document.getElementById('card-chinese').textContent = word.chinese;
+            document.getElementById('card-example').textContent = word.example;
+            document.getElementById('card-mastery').textContent = SpacedRepetitionEngine.masteryDescription(word.masteryLevel);
+            document.getElementById('card-mastery').style.background = SpacedRepetitionEngine.masteryColor(word.masteryLevel);
+        } else {
+            answerSection.classList.add('hidden');
+            btnShowAnswer.classList.remove('hidden');
+            actionButtons.classList.add('hidden');
+        }
+    }
+    
+    showAnswerClick() {
+        this.showAnswer = true;
+        this.renderStudyCard();
+    }
+    
+    speakWord() {
+        const word = this.studyWords[this.studyIndex];
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(word.english);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+    }
+    
+    recordAnswer(correct) {
+        const word = this.studyWords[this.studyIndex];
+        const wordIndex = this.words.findIndex(w => w.id === word.id);
+        
+        if (wordIndex !== -1) {
+            SpacedRepetitionEngine.updateWord(this.words[wordIndex], correct ? 4 : 1);
+            this.saveWords();
+        }
+        
+        if (correct) this.correctCount++;
+        
+        if (this.studyIndex < this.studyWords.length - 1) {
+            this.studyIndex++;
+            this.showAnswer = false;
+            this.renderStudyCard();
+        } else {
+            this.completeStudy();
+        }
+    }
+    
+    completeStudy() {
+        const session = {
+            date: Date.now(),
+            wordsReviewed: this.studyWords.length,
+            correctAnswers: this.correctCount,
+            totalTimeSeconds: Math.floor((Date.now() - this.startTime) / 1000)
+        };
+        this.sessions.push(session);
+        this.saveSessions();
+        
+        document.getElementById('study-view').classList.remove('active');
+        document.getElementById('complete-view').classList.add('active');
+        
+        const accuracy = Math.round((this.correctCount / this.studyWords.length) * 100);
+        document.getElementById('complete-total').textContent = this.studyWords.length;
+        document.getElementById('complete-correct').textContent = this.correctCount;
+        document.getElementById('complete-accuracy').textContent = accuracy + '%';
+        
+        let msg = '';
+        if (accuracy >= 90) msg = '太厉害了！你已经掌握得很好了！继续保持！';
+        else if (accuracy >= 70) msg = '做得不错！再复习几次就能完全掌握了！';
+        else if (accuracy >= 50) msg = '继续努力！每天学习一点点，你会越来越好的！';
+        else msg = '别灰心！学习就是一个不断重复的过程，明天再来复习吧！';
+        document.getElementById('encouragement').textContent = msg;
+    }
+    
+    backToHome() {
+        document.getElementById('study-view').classList.remove('active');
+        document.getElementById('empty-view').classList.remove('active');
+        document.getElementById('complete-view').classList.remove('active');
+        document.getElementById('page-home').classList.add('active');
+        this.render();
+    }
+    
+    renderWords() {
+        this.renderTagFilter();
+        this.renderWordList();
+    }
+    
+    renderTagFilter() {
+        const container = document.getElementById('tag-filter');
+        const tags = [...new Set(this.words.flatMap(w => w.tags))].sort();
+        
+        container.innerHTML = '<button class="tag-btn ' + (!this.selectedTag ? 'active' : '') + '" onclick="app.filterTag(null)">全部</button>' +
+            tags.map(tag => '<button class="tag-btn ' + (this.selectedTag === tag ? 'active' : '') + '" onclick="app.filterTag(\'' + tag + '\')">' + tag + '</button>').join('');
+    }
+    
+    renderWordList() {
+        const container = document.getElementById('word-list');
+        let filtered = this.words;
+        
+        if (this.searchText) {
+            const text = this.searchText.toLowerCase();
+            filtered = filtered.filter(w => w.english.toLowerCase().includes(text) || w.chinese.includes(text));
+        }
+        
+        if (this.selectedTag) {
+            filtered = filtered.filter(w => w.tags.includes(this.selectedTag));
+        }
+        
+        container.innerHTML = filtered.map(word => 
+            '<li class="word-item"><div class="word-info"><h3>' + word.english + ' <span style="font-size:12px;color:#999;font-weight:normal">' + word.phonetic + '</span></h3><p>' + word.chinese + '</p></div><div class="word-actions"><div class="mastery-dot" style="background:' + SpacedRepetitionEngine.masteryColor(word.masteryLevel) + '"></div><button class="btn-icon" onclick="app.speakWordFromList(\'' + word.english + '\')"><i class="fas fa-volume-up"></i></button></div></li>'
+        ).join('');
+    }
+    
+    filterTag(tag) {
+        this.selectedTag = tag;
+        this.renderWords();
+    }
+    
+    searchWords(text) {
+        this.searchText = text;
+        this.renderWordList();
+    }
+    
+    speakWordFromList(word) {
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+    }
+    
+    renderProfile() {
+        const mastered = this.words.filter(w => w.masteryLevel >= 4).length;
+        const learning = this.words.filter(w => w.masteryLevel >= 1 && w.masteryLevel < 4).length;
+        const newWords = this.words.filter(w => w.masteryLevel === 0).length;
+        const totalReviewed = this.sessions.reduce((sum, s) => sum + s.wordsReviewed, 0);
+        const avgAccuracy = this.sessions.length > 0 
+            ? Math.round(this.sessions.reduce((sum, s) => sum + (s.correctAnswers / s.wordsReviewed), 0) / this.sessions.length * 100)
+            : 0;
+        const totalTime = this.sessions.reduce((sum, s) => sum + s.totalTimeSeconds, 0);
+        
+        document.getElementById('stat-total-words').textContent = this.words.length;
+        document.getElementById('stat-mastered').textContent = mastered;
+        document.getElementById('stat-learning').textContent = learning;
+        document.getElementById('stat-new').textContent = newWords;
+        document.getElementById('stat-total-reviewed').textContent = totalReviewed;
+        document.getElementById('stat-avg-accuracy').textContent = avgAccuracy + '%';
+        document.getElementById('stat-total-time').textContent = this.formatTime(totalTime);
+        document.getElementById('stat-sessions').textContent = this.sessions.length;
+        
+        this.renderMasteryBars();
+        this.renderRecentSessions();
+    }
+    
+    renderMasteryBars() {
+        const container = document.getElementById('mastery-bars');
+        const levels = ['新词', '初识', '眼熟', '认识', '熟悉', '精通'];
+        const colors = ['#999', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db',
+    
+    {english:"breakfast",chinese:"早餐",phonetic:"/ˈbrekfəst/",example:"I eat breakfast at 7.",tags:["食物"]},
+    {english:"lunch",chinese:"午餐",phonetic:"/lʌntʃ/",example:"Let us have lunch.",tags:["食物"]},
+    {english:"dinner",chinese:"晚餐",phonetic:"/ˈdɪnər/",example:"Dinner is ready.",tags:["食物"]},
+    {english:"cake",chinese:"蛋糕",phonetic:"/keɪk/",example:"I like chocolate cake.",tags:["食物"]},
+    {english:"egg",chinese:"鸡蛋",phonetic:"/eɡ/",example:"I want an egg.",tags:["食物"]},
+    {english:"banana",chinese:"香蕉",phonetic:"/bəˈnænə/",example:"The banana is yellow.",tags:["食物"]},
+    {english:"orange",chinese:"橙子",phonetic:"/ˈɒrɪndʒ/",example:"I drink orange juice.",tags:["食物"]},
+    {english:"sugar",chinese:"糖",phonetic:"/ˈʃʊɡər/",example:"Do you want sugar?",tags:["食物"]},
+    {english:"chair",chinese:"椅子",phonetic:"/tʃeər/",example:"Sit on the chair.",tags:["家具"]},
+    {english:"table",chinese:"桌子",phonetic:"/ˈteɪbl/",example:"The book is on the table.",tags:["家具"]},
+    {english:"door",chinese:"门",phonetic:"/dɔːr/",example:"Please close the door.",tags:["家具"]},
+    {english:"window",chinese:"窗户",phonetic:"/ˈwɪndoʊ/",example:"Open the window.",tags:["家具"]},
+    {english:"bed",chinese:"床",phonetic:"/bed/",example:"I sleep in my bed.",tags:["家具"]},
+    {english:"clock",chinese:"钟",phonetic:"/klɒk/",example:"Look at the clock.",tags:["物品"]},
+    {english:"key",chinese:"钥匙",phonetic:"/kiː/",example:"Where is my key?",tags:["物品"]},
+    {english:"bag",chinese:"包",phonetic:"/bæɡ/",example:"I carry my bag.",tags:["物品"]},
+    {english:"ball",chinese:"球",phonetic:"/bɔːl/",example:"Kick the ball!",tags:["物品"]},
+    {english:"phone",chinese:"电话",phonetic:"/foʊn/",example:"Answer the phone.",tags:["物品"]},
+    {english:"cup",chinese:"杯子",phonetic:"/kʌp/",example:"A cup of tea, please.",tags:["物品"]},
+    {english:"flower",chinese:"花",phonetic:"/ˈflaʊər/",example:"The flower is beautiful.",tags:["自然"]},
+    {english:"tree",chinese:"树",phonetic:"/triː/",example:"The tree is tall.",tags:["自然"]},
+    {english:"grass",chinese:"草",phonetic:"/ɡræs/",example:"Do not walk on the grass.",tags:["自然"]},
+    {english:"sky",chinese:"天空",phonetic:"/skaɪ/",example:"The sky is blue.",tags:["自然"]},
+    {english:"moon",chinese:"月亮",phonetic:"/muːn/",example:"The moon is bright.",tags:["自然"]},
+    {english:"star",chinese:"星星",phonetic:"/stɑːr/",example:"I see a star.",tags:["自然"]},
+    {english:"snow",chinese:"雪",phonetic:"/snoʊ/",example:"It snows in winter.",tags:["天气"]},
+    {english:"wind",chinese:"风",phonetic:"/wɪnd/",example:"The wind is strong.",tags:["天气"]},
+    {english:"spring",chinese:"春天",phonetic:"/sprɪŋ/",example:"Flowers bloom in spring.",tags:["时间"]},
+    {english:"summer",chinese:"夏天",phonetic:"/ˈsʌmər/",example:"Summer is hot.",tags:["时间"]},
+    {english:"autumn",chinese:"秋天",phonetic:"/ˈɔːtəm/",example:"Leaves fall in autumn.",tags:["时间"]},
+    {english:"winter",chinese:"冬天",phonetic:"/ˈwɪntər/",example:"Winter is cold.",tags:["时间"]},
+    {english:"Sunday",chinese:"星期日",phonetic:"/ˈsʌndeɪ/",example:"I rest on Sunday.",tags:["时间"]},
+    {english:"Monday",chinese:"星期一",phonetic:"/ˈmʌndeɪ/",example:"Monday is the first day.",tags:["时间"]},
+    {english:"January",chinese:"一月",phonetic:"/ˈdʒænjueri/",example:"January is the first month.",tags:["时间"]},
+    {english:"birthday",chinese:"生日",phonetic:"/ˈbɜːrθdeɪ/",example:"Happy birthday!",tags:["时间"]},
+    {english:"sing",chinese:"唱歌",phonetic:"/sɪŋ/",example:"I like to sing.",tags:["动词"]},
+    {english:"dance",chinese:"跳舞",phonetic:"/dæns/",example:"She can dance well.",tags:["动词"]},
+    {english:"swim",chinese:"游泳",phonetic:"/swɪm/",example:"I can swim.",tags:["动词"]},
+    {english:"draw",chinese:"画画",phonetic:"/drɔː/",example:"I draw a picture.",tags:["动词"]},
+    {english:"read",chinese:"读",phonetic:"/riːd/",example:"I read a story.",tags:["动词"]},
+    {english:"write",chinese:"写",phonetic:"/raɪt/",example:"Write your name.",tags:["动词"]},
+    {english:"play",chinese:"玩",phonetic:"/pleɪ/",example:"Let us play together.",tags:["动词"]},
+    {english:"sleep",chinese:"睡觉",phonetic:"/sliːp/",example:"I sleep at nine.",tags:["动词"]},
+    {english:"wake",chinese:"醒来",phonetic:"/weɪk/",example:"I wake up early.",tags:["动词"]},
+    {english:"cook",chinese:"做饭",phonetic:"/kʊk/",example:"Mom cooks dinner.",tags:["动词"]},
+    {english:"wash",chinese:"洗",phonetic:"/wɒʃ/",example:"Wash your hands.",tags:["动词"]},
+    {english:"clean",chinese:"打扫",phonetic:"/kliːn/",example:"Clean your room.",tags:["动词"]},
+    {english:"help",chinese:"帮助",phonetic:"/help/",example:"Can you help me?",tags:["动词"]},
+    {english:"open",chinese:"打开",phonetic:"/ˈoʊpən/",example:"Open your book.",tags:["动词"]},
+    {english:"close",chinese:"关闭",phonetic:"/kloʊz/",example:"Close the window.",tags:["动词"]},
+    {english:"give",chinese:"给",phonetic:"/ɡɪv/",example:"Give me the pen.",tags:["动词"]},
+    {english:"take",chinese:"拿",phonetic:"/teɪk/",example:"Take this apple.",tags:["动词"]},
+    {english:"put",chinese:"放",phonetic:"/pʊt/",example:"Put it on the table.",tags:["动词"]},
+    {english:"find",chinese:"找到",phonetic:"/faɪnd/",example:"I find my key.",tags:["动词"]},
+    {english:"stop",chinese:"停止",phonetic:"/stɒp/",example:"Stop talking.",tags:["动词"]},
+    {english:"wait",chinese:"等待",phonetic:"/weɪt/",example:"Wait for me.",tags:["动词"]},
+    {english:"try",chinese:"尝试",phonetic:"/traɪ/",example:"Try again!",tags:["动词"]},
+    {english:"tall",chinese:"高的",phonetic:"/tɔːl/",example:"My father is tall.",tags:["形容词"]},
+    {english:"short",chinese:"矮的",phonetic:"/ʃɔːrt/",example:"The boy is short.",tags:["形容词"]},
+    {english:"fast",chinese:"快的",phonetic:"/fæst/",example:"The car is fast.",tags:["形容词"]},
+    {english:"slow",chinese:"慢的",phonetic:"/sloʊ/",example:"The turtle is slow.",tags:["形容词"]},
+    {english:"strong",chinese:"强壮的",phonetic:"/strɒŋ/",example:"He is very strong.",tags:["形容词"]},
+    {english:"young",chinese:"年轻的",phonetic:"/jʌŋ/",example:"She is young.",tags:["形容词"]},
+    {english:"pretty",chinese:"漂亮的",phonetic:"/ˈprɪti/",example:"The girl is pretty.",tags:["形容词"]},
+    {english:"clean",chinese:"干净的",phonetic:"/kliːn/",example:"The room is clean.",tags:["形容词"]},
+    {english:"dirty",chinese:"脏的",phonetic:"/ˈdɜːrti/",example:"Your hands are dirty.",tags:["形容词"]},
+    {english:"easy",chinese:"容易的",phonetic:"/ˈiːzi/",example:"This is easy.",tags:["形容词"]},
+    {english:"hard",chinese:"难的",phonetic:"/hɑːrd/",example:"The test is hard.",tags:["形容词"]},
+    {english:"right",chinese:"正确的",phonetic:"/raɪt/",example:"You are right!",tags:["形容词"]},
+    {english:"wrong",chinese:"错误的",phonetic:"/rɒŋ/",example:"The answer is wrong.",tags:["形容词"]},
+    {english:"doctor",chinese:"医生",phonetic:"/ˈdɒktər/",example:"I want to be a doctor.",tags:["职业"]},
+    {english:"nurse",chinese:"护士",phonetic:"/nɜːrs/",example:"The nurse is kind.",tags:["职业"]},
+    {english:"driver",chinese:"司机",phonetic:"/ˈdraɪvər/",example:"My uncle is a driver.",tags:["职业"]},
+    {english:"farmer",chinese:"农民",phonetic:"/ˈfɑːrmər/",example:"The farmer grows rice.",tags:["职业"]},
+    {english:"cook",chinese:"厨师",phonetic:"/kʊk/",example:"The cook makes food.",tags:["职业"]},
+    {english:"friend",chinese:"朋友",phonetic:"/frend/",example:"She is my best friend.",tags:["人物"]},
+    {english:"baby",chinese:"婴儿",phonetic:"/ˈbeɪbi/",example:"The baby is sleeping.",tags:["人物"]},
+    {english:"child",chinese:"孩子",phonetic:"/tʃaɪld/",example:"The child is happy.",tags:["人物"]},
+    {english:"boy",chinese:"男孩",phonetic:"/bɔɪ/",example:"The boy runs fast.",tags:["人物"]},
+    {english:"girl",chinese:"女孩",phonetic:"/ɡɜːrl/",example:"The girl reads a book.",tags:["人物"]},
+    {english:"people",chinese:"人们",phonetic:"/ˈpiːpl/",example:"Many people are here.",tags:["人物"]},
+    {english:"street",chinese:"街道",phonetic:"/striːt/",example:"Walk on the street.",tags:["地点"]},
+    {english:"hospital",chinese:"医院",phonetic:"/ˈhɒspɪtl/",example:"Go to the hospital.",tags:["地点"]},
+    {english:"market",chinese:"市场",phonetic:"/ˈmɑːrkɪt/",example:"Buy food at the market.",tags:["地点"]},
+    {english:"garden",chinese:"花园",phonetic:"/ˈɡɑːrdn/",example:"Flowers in the garden.",tags:["地点"]},
+    {english:"kitchen",chinese:"厨房",phonetic:"/ˈkɪtʃɪn/",example:"Mom is in the kitchen.",tags:["地点"]},
+    {english:"car",chinese:"汽车",phonetic:"/kɑːr/",example:"The car is red.",tags:["交通"]},
+    {english:"bus",chinese:"公共汽车",phonetic:"/bʌs/",example:"I take the bus to school.",tags:["交通"]},
+    {english:"bike",chinese:"自行车",phonetic:"/baɪk/",example:"I ride a bike.",tags:["交通"]},
+    {english:"train",chinese:"火车",phonetic:"/treɪn/",example:"The train is fast.",tags:["交通"]},
+    {english:"plane",chinese:"飞机",phonetic:"/pleɪn/",example:"The plane flies high.",tags:["交通"]},
+    {english:"boat",chinese:"船",phonetic:"/boʊt/",example:"The boat is on the water.",tags:["交通"]},
+    {english:"happy",chinese:"快乐的",phonetic:"/ˈhæpi/",example:"I feel happy today.",tags:["情感"]},
+    {english:"angry",chinese:"生气的",phonetic:"/ˈæŋɡri/",example:"Dad is angry.",tags:["情感"]},
+    {english:"afraid",chinese:"害怕的",phonetic:"/əˈfreɪd/",example:"I am afraid of dogs.",tags:["情感"]},
+    {english:"tired",chinese:"累的",phonetic:"/ˈtaɪərd/",example:"I am so tired.",tags:["情感"]},
+    {english:"hungry",chinese:"饿的",phonetic:"/ˈhʌŋɡri/",example:"I am hungry.",tags:["情感"]},
+    {english:"thirsty",chinese:"渴的",phonetic:"/ˈθɜːrsti/",example:"I am thirsty.",tags:["情感"]},
+    {english:"bored",chinese:"无聊的",phonetic:"/bɔːrd/",example:"I feel bored.",tags:["情感"]},
+    {english:"excited",chinese:"兴奋的",phonetic:"/ɪkˈsaɪtɪd/",example:"I am so excited!",tags:["情感"]}
+
+];
+        
+        container.innerHTML = levels.map((label, i) => {
+            const count = this.words.filter(w => w.masteryLevel === i).length;
+            const percent = this.words.length > 0 ? (count / this.words.length * 100) : 0;
+            return '<div class="mastery-bar"><span class="mastery-bar-label">' + label + '</span><div class="mastery-bar-track"><div class="mastery-bar-fill" style="width:' + percent + '%;background:' + colors[i] + '"></div></div><span class="mastery-bar-count">' + count + '</span></div>';
+        }).join('');
+    }
+    
+    renderRecentSessions() {
+        const container = document.getElementById('recent-sessions');
+        const recent = [...this.sessions].reverse().slice(0, 7);
+        
+        if (recent.length === 0) {
+            container.innerHTML = '<p style="text-align:center;color:#999;padding:20px">还没有学习记录，快去学习吧！</p>';
+            return;
+        }
+        
+        container.innerHTML = recent.map(session => {
+            const date = new Date(session.date);
+            const accuracy = Math.round((session.correctAnswers / session.wordsReviewed) * 100);
+            return '<div class="session-item"><div class="session-info">' + (date.getMonth() + 1) + '月' + date.getDate() + '日 <span>复习了 ' + session.wordsReviewed + ' 个单词</span></div><span class="session-accuracy" style="color:' + (accuracy >= 70 ? '#2ecc71' : '#e67e22') + '">' + accuracy + '%</span></div>';
+        }).join('');
+    }
+    
+    resetData() {
+        if (confirm('确定要重置所有学习数据吗？')) {
+            localStorage.removeItem('wordpilot_words');
+            localStorage.removeItem('wordpilot_sessions');
+            this.loadData();
+            this.render();
+            alert('数据已重置！');
+        }
+    }
+    
+    calculateStreak() {
+        let streak = 0;
+        let date = new Date();
+        if (!this.hasStudiedOn(date)) date.setDate(date.getDate() - 1);
+        while (this.hasStudiedOn(date)) {
+            streak++;
+            date.setDate(date.getDate() - 1);
+        }
+        return streak;
+    }
+    
+    hasStudiedOn(date) {
+        return this.sessions.some(s => this.isSameDay(s.date, date.getTime()));
+    }
+    
+    isToday(timestamp) {
+        return this.isSameDay(timestamp, Date.now());
+    }
+    
+    isSameDay(t1, t2) {
+        const d1 = new Date(t1);
+        const d2 = new Date(t2);
+        return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth() && d1.getDate() === d2.getDate();
+    }
+    
+    formatTime(seconds) {
+        if (seconds < 60) return seconds + '秒';
+        if (seconds < 3600) return Math.floor(seconds / 60) + '分钟';
+        return Math.floor(seconds / 3600) + '小时' + Math.floor((seconds % 3600) / 60) + '分钟';
+    }
+    
+    updateGreeting() {
+        const hour = new Date().getHours();
+        let greeting = '';
+        if (hour < 12) greeting = '早上好 ☀️';
+        else if (hour < 14) greeting = '中午好 🌤️';
+        else if (hour < 18) greeting = '下午好 🌅';
+        else greeting = '晚上好 🌙';
+        document.getElementById('greeting-text').textContent = greeting;
+    }
+}
+
+const app = new WordPilotApp();
+</script>
+
+</body>
+</html>
+
