@@ -1559,6 +1559,344 @@ const SpacedRepetitionEngine = {
     // 获取掌握度颜色
     masteryColor(level) {
         const colors = ['#999', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db'];
+        return colors[level] || '#999';
+    }
+};
+</script>
+<script>﻿// WordPilot - 主应用逻辑
+
+class WordPilotApp {
+    constructor() {
+        this.words = [];
+        this.sessions = [];
+        this.currentTab = 'home';
+        this.studyWords = [];
+        this.studyIndex = 0;
+        this.showAnswer = false;
+        this.correctCount = 0;
+        this.startTime = null;
+        this.searchText = '';
+        this.selectedTag = null;
+        
+        this.init();
+    }
+    
+    init() {
+        this.loadData();
+        this.setupEventListeners();
+        this.render();
+        this.updateGreeting();
+    }
+    
+    loadData() {
+        const savedWords = localStorage.getItem('wordpilot_words');
+        const savedSessions = localStorage.getItem('wordpilot_sessions');
+        
+        if (savedWords) {
+            this.words = JSON.parse(savedWords);
+            const existingEnglish = new Set(this.words.map(w => w.english));
+            let maxId = this.words.length > 0 ? Math.max(...this.words.map(w => w.id)) : -1;
+            let newAdded = 0;
+            BEGINNER_WORDS.forEach(w => {
+                if (!existingEnglish.has(w.english)) {
+                    this.words.push({ id: ++maxId, ...w, masteryLevel: 0, correctCount: 0, wrongCount: 0, lastReviewed: null, nextReview: Date.now() });
+                    newAdded++;
+                }
+            });
+            if (newAdded > 0) this.saveWords();
+        } else {
+            this.words = BEGINNER_WORDS.map((w, i) => ({
+                id: i,
+                ...w,
+                masteryLevel: 0,
+                correctCount: 0,
+                wrongCount: 0,
+                lastReviewed: null,
+                nextReview: Date.now()
+            }));
+            this.saveWords();
+        }
+        
+        this.sessions = savedSessions ? JSON.parse(savedSessions) : [];
+    }
+    
+    saveWords() {
+        localStorage.setItem('wordpilot_words', JSON.stringify(this.words));
+    }
+    
+    saveSessions() {
+        localStorage.setItem('wordpilot_sessions', JSON.stringify(this.sessions));
+    }
+    
+    setupEventListeners() {
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                this.currentTab = tab.dataset.tab;
+                this.render();
+            });
+        });
+    }
+    
+    render() {
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.tab === this.currentTab);
+        });
+        document.querySelectorAll('.page').forEach(page => {
+            page.classList.toggle('active', page.id === 'page-' + this.currentTab);
+        });
+        
+        switch(this.currentTab) {
+            case 'home': this.renderHome(); break;
+            case 'words': this.renderWords(); break;
+            case 'profile': this.renderProfile(); break;
+        }
+    }
+    
+    renderHome() {
+        document.getElementById('streak-days').textContent = this.calculateStreak();
+        this.renderWeekCalendar();
+        
+        const todayReviewed = this.sessions.filter(s => this.isToday(s.date)).reduce((sum, s) => sum + s.wordsReviewed, 0);
+        const dueWords = SpacedRepetitionEngine.getDueWords(this.words, 100);
+        
+        document.getElementById('today-reviewed').textContent = todayReviewed;
+        document.getElementById('due-count').textContent = dueWords.length;
+        document.getElementById('total-words').textContent = this.words.length;
+    }
+    
+    renderWeekCalendar() {
+        const calendar = document.getElementById('week-calendar');
+        calendar.innerHTML = '';
+        const days = ['日', '一', '二', '三', '四', '五', '六'];
+        
+        for (let i = 6; i >= 0; i--) {
+            const date = new Date();
+            date.setDate(date.getDate() - i);
+            const studied = this.hasStudiedOn(date);
+            
+            const dayEl = document.createElement('div');
+            dayEl.className = 'day-item';
+            dayEl.innerHTML = '<span>' + days[date.getDay()] + '</span><div class="day-circle ' + (studied ? 'studied' : '') + '">' + (studied ? '✓' : '') + '</div>';
+            calendar.appendChild(dayEl);
+        }
+    }
+    
+    startStudy() {
+        this.studyWords = SpacedRepetitionEngine.getDueWords(this.words, 10);
+        this.studyIndex = 0;
+        this.showAnswer = false;
+        this.correctCount = 0;
+        this.startTime = Date.now();
+        
+        if (this.studyWords.length === 0) {
+            this.showEmptyState();
+            return;
+        }
+        
+        this.showStudyView();
+    }
+    
+    showStudyView() {
+        document.getElementById('page-home').classList.remove('active');
+        document.getElementById('study-view').classList.add('active');
+        this.renderStudyCard();
+    }
+    
+    showEmptyState() {
+        document.getElementById('page-home').classList.remove('active');
+        document.getElementById('empty-view').classList.add('active');
+    }
+    
+    renderStudyCard() {
+        const word = this.studyWords[this.studyIndex];
+        
+        document.getElementById('study-progress').textContent = '进度: ' + (this.studyIndex + 1) + '/' + this.studyWords.length;
+        document.getElementById('study-stats').textContent = '正确: ' + this.correctCount + ' 错误: ' + (this.studyIndex - this.correctCount);
+        document.getElementById('progress-fill').style.width = ((this.studyIndex + 1) / this.studyWords.length * 100) + '%';
+        
+        document.getElementById('card-english').textContent = word.english;
+        document.getElementById('card-phonetic').textContent = word.phonetic;
+        
+        const answerSection = document.getElementById('answer-section');
+        const btnShowAnswer = document.getElementById('btn-show-answer');
+        const actionButtons = document.getElementById('action-buttons');
+        
+        if (this.showAnswer) {
+            answerSection.classList.remove('hidden');
+            btnShowAnswer.classList.add('hidden');
+            actionButtons.classList.remove('hidden');
+            document.getElementById('card-chinese').textContent = word.chinese;
+            document.getElementById('card-example').textContent = word.example;
+            document.getElementById('card-mastery').textContent = SpacedRepetitionEngine.masteryDescription(word.masteryLevel);
+            document.getElementById('card-mastery').style.background = SpacedRepetitionEngine.masteryColor(word.masteryLevel);
+        } else {
+            answerSection.classList.add('hidden');
+            btnShowAnswer.classList.remove('hidden');
+            actionButtons.classList.add('hidden');
+        }
+    }
+    
+    showAnswerClick() {
+        this.showAnswer = true;
+        this.renderStudyCard();
+    }
+    
+    speakWord() {
+        const word = this.studyWords[this.studyIndex];
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(word.english);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+    }
+    
+    recordAnswer(correct) {
+        const word = this.studyWords[this.studyIndex];
+        const wordIndex = this.words.findIndex(w => w.id === word.id);
+        
+        if (wordIndex !== -1) {
+            SpacedRepetitionEngine.updateWord(this.words[wordIndex], correct ? 4 : 1);
+            this.saveWords();
+        }
+        
+        if (correct) this.correctCount++;
+        
+        if (this.studyIndex < this.studyWords.length - 1) {
+            this.studyIndex++;
+            this.showAnswer = false;
+            this.renderStudyCard();
+        } else {
+            this.completeStudy();
+        }
+    }
+    
+    completeStudy() {
+        const session = {
+            date: Date.now(),
+            wordsReviewed: this.studyWords.length,
+            correctAnswers: this.correctCount,
+            totalTimeSeconds: Math.floor((Date.now() - this.startTime) / 1000)
+        };
+        this.sessions.push(session);
+        this.saveSessions();
+        
+        document.getElementById('study-view').classList.remove('active');
+        document.getElementById('complete-view').classList.add('active');
+        
+        const accuracy = Math.round((this.correctCount / this.studyWords.length) * 100);
+        document.getElementById('complete-total').textContent = this.studyWords.length;
+        document.getElementById('complete-correct').textContent = this.correctCount;
+        document.getElementById('complete-accuracy').textContent = accuracy + '%';
+        
+        let msg = '';
+        if (accuracy >= 90) msg = '太厉害了！你已经掌握得很好了！继续保持！';
+        else if (accuracy >= 70) msg = '做得不错！再复习几次就能完全掌握了！';
+        else if (accuracy >= 50) msg = '继续努力！每天学习一点点，你会越来越好的！';
+        else msg = '别灰心！学习就是一个不断重复的过程，明天再来复习吧！';
+        document.getElementById('encouragement').textContent = msg;
+    }
+    
+
+    learnNewWords() {
+        const newWords = this.words.filter(w => w.masteryLevel === 0);
+        if (newWords.length === 0) { alert('太棒了！所有单词都已开始学习！'); return; }
+        this.studyWords = newWords.slice(0, 10);
+        this.studyIndex = 0;
+        this.showAnswer = false;
+        this.correctCount = 0;
+        this.startTime = Date.now();
+        document.getElementById('empty-view').classList.remove('active');
+        this.showStudyView();
+    }
+    
+    backToHome() {
+        document.getElementById('study-view').classList.remove('active');
+        document.getElementById('empty-view').classList.remove('active');
+        document.getElementById('complete-view').classList.remove('active');
+        document.getElementById('page-home').classList.add('active');
+        this.render();
+    }
+    
+    renderWords() {
+        this.renderTagFilter();
+        this.renderWordList();
+    }
+    
+    renderTagFilter() {
+        const container = document.getElementById('tag-filter');
+        const tags = [...new Set(this.words.flatMap(w => w.tags))].sort();
+        
+        container.innerHTML = '<button class="tag-btn ' + (!this.selectedTag ? 'active' : '') + '" onclick="app.filterTag(null)">全部</button>' +
+            tags.map(tag => '<button class="tag-btn ' + (this.selectedTag === tag ? 'active' : '') + '" onclick="app.filterTag(\'' + tag + '\')">' + tag + '</button>').join('');
+    }
+    
+    renderWordList() {
+        const container = document.getElementById('word-list');
+        let filtered = this.words;
+        
+        if (this.searchText) {
+            const text = this.searchText.toLowerCase();
+            filtered = filtered.filter(w => w.english.toLowerCase().includes(text) || w.chinese.includes(text));
+        }
+        
+        if (this.selectedTag) {
+            filtered = filtered.filter(w => w.tags.includes(this.selectedTag));
+        }
+        
+        container.innerHTML = filtered.map(word => 
+            '<li class="word-item"><div class="word-info"><h3>' + word.english + ' <span style="font-size:12px;color:#999;font-weight:normal">' + word.phonetic + '</span></h3><p>' + word.chinese + '</p></div><div class="word-actions"><div class="mastery-dot" style="background:' + SpacedRepetitionEngine.masteryColor(word.masteryLevel) + '"></div><button class="btn-icon" onclick="app.speakWordFromList(\'' + word.english + '\')"><i class="fas fa-volume-up"></i></button></div></li>'
+        ).join('');
+    }
+    
+    filterTag(tag) {
+        this.selectedTag = tag;
+        this.renderWords();
+    }
+    
+    searchWords(text) {
+        this.searchText = text;
+        this.renderWordList();
+    }
+    
+    speakWordFromList(word) {
+        if ('speechSynthesis' in window) {
+            speechSynthesis.cancel();
+            const utterance = new SpeechSynthesisUtterance(word);
+            utterance.lang = 'en-US';
+            utterance.rate = 0.8;
+            speechSynthesis.speak(utterance);
+        }
+    }
+    
+    renderProfile() {
+        const mastered = this.words.filter(w => w.masteryLevel >= 4).length;
+        const learning = this.words.filter(w => w.masteryLevel >= 1 && w.masteryLevel < 4).length;
+        const newWords = this.words.filter(w => w.masteryLevel === 0).length;
+        const totalReviewed = this.sessions.reduce((sum, s) => sum + s.wordsReviewed, 0);
+        const avgAccuracy = this.sessions.length > 0 
+            ? Math.round(this.sessions.reduce((sum, s) => sum + (s.correctAnswers / s.wordsReviewed), 0) / this.sessions.length * 100)
+            : 0;
+        const totalTime = this.sessions.reduce((sum, s) => sum + s.totalTimeSeconds, 0);
+        
+        document.getElementById('stat-total-words').textContent = this.words.length;
+        document.getElementById('stat-mastered').textContent = mastered;
+        document.getElementById('stat-learning').textContent = learning;
+        document.getElementById('stat-new').textContent = newWords;
+        document.getElementById('stat-total-reviewed').textContent = totalReviewed;
+        document.getElementById('stat-avg-accuracy').textContent = avgAccuracy + '%';
+        document.getElementById('stat-total-time').textContent = this.formatTime(totalTime);
+        document.getElementById('stat-sessions').textContent = this.sessions.length;
+        
+        this.renderMasteryBars();
+        this.renderRecentSessions();
+    }
+    
+    renderMasteryBars() {
+        const container = document.getElementById('mastery-bars');
+        const levels = ['新词', '初识', '眼熟', '认识', '熟悉', '精通'];
+        const colors = ['#999', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db'];
         container.innerHTML = levels.map((label, i) => {
             const count = this.words.filter(w => w.masteryLevel === i).length;
             const percent = this.words.length > 0 ? (count / this.words.length * 100) : 0;
