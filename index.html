@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -762,6 +762,7 @@ body {
         <i class="fas fa-check-circle"></i>
         <h2>太棒了！</h2>
         <p>目前没有需要复习的单词，休息一下吧！</p>
+        <button class="btn btn-primary" onclick="app.learnNewWords()" style="margin-bottom:10px;background:#2ecc71"><i class="fas fa-plus-circle"></i> 学习新单词</button>
         <button class="btn btn-primary" onclick="app.backToHome()">返回首页</button>
     </div>
 </div>
@@ -786,6 +787,7 @@ body {
             </div>
         </div>
         <p id="encouragement" class="encouragement"></p>
+        <button class="btn btn-primary" onclick="app.learnNewWords()" style="margin-bottom:10px;background:#2ecc71"><i class="fas fa-plus-circle"></i> 学习新单词</button>
         <button class="btn btn-primary" onclick="app.backToHome()">返回首页</button>
     </div>
 </div>
@@ -887,21 +889,25 @@ body {
 
 <script>﻿// WordPilot - 英语学习词汇大全
 const BEGINNER_WORDS = [
-    // 基础问候
     { english: "hello", chinese: "你好", phonetic: "/həˈloʊ/", example: "Hello, how are you?", tags: ["问候"] },
     { english: "goodbye", chinese: "再见", phonetic: "/ɡʊdˈbaɪ/", example: "Goodbye, see you tomorrow.", tags: ["问候"] },
     { english: "please", chinese: "请", phonetic: "/pliːz/", example: "Please sit down.", tags: ["礼貌"] },
     { english: "thank", chinese: "谢谢", phonetic: "/θæŋk/", example: "Thank you very much.", tags: ["礼貌"] },
     { english: "sorry", chinese: "对不起", phonetic: "/ˈsɒri/", example: "I am sorry.", tags: ["礼貌"] },
-    
-    // 人称代词
+    { english: "excuse", chinese: "打扰", phonetic: "/ɪkˈskjuːz/", example: "Excuse me.", tags: ["礼貌"] },
     { english: "I", chinese: "我", phonetic: "/aɪ/", example: "I am a student.", tags: ["代词"] },
     { english: "you", chinese: "你", phonetic: "/juː/", example: "You are my friend.", tags: ["代词"] },
     { english: "he", chinese: "他", phonetic: "/hiː/", example: "He is a boy.", tags: ["代词"] },
     { english: "she", chinese: "她", phonetic: "/ʃiː/", example: "She is a girl.", tags: ["代词"] },
     { english: "we", chinese: "我们", phonetic: "/wiː/", example: "We are happy.", tags: ["代词"] },
-    
-    // 数字
+    { english: "they", chinese: "他们", phonetic: "/ðeɪ/", example: "They are playing.", tags: ["代词"] },
+    { english: "it", chinese: "它", phonetic: "/ɪt/", example: "It is a cat.", tags: ["代词"] },
+    { english: "who", chinese: "谁", phonetic: "/huː/", example: "Who is he?", tags: ["疑问"] },
+    { english: "what", chinese: "什么", phonetic: "/wɒt/", example: "What is your name?", tags: ["疑问"] },
+    { english: "where", chinese: "哪里", phonetic: "/weər/", example: "Where are you?", tags: ["疑问"] },
+    { english: "when", chinese: "什么时候", phonetic: "/wen/", example: "When is the party?", tags: ["疑问"] },
+    { english: "why", chinese: "为什么", phonetic: "/waɪ/", example: "Why are you sad?", tags: ["疑问"] },
+    { english: "how", chinese: "怎样", phonetic: "/haʊ/", example: "How are you?", tags: ["疑问"] },
     { english: "one", chinese: "一", phonetic: "/wʌn/", example: "I have one apple.", tags: ["数字"] },
     { english: "two", chinese: "二", phonetic: "/tuː/", example: "I see two birds.", tags: ["数字"] },
     { english: "three", chinese: "三", phonetic: "/θriː/", example: "There are three cats.", tags: ["数字"] },
@@ -912,106 +918,477 @@ const BEGINNER_WORDS = [
     { english: "eight", chinese: "八", phonetic: "/eɪt/", example: "I am eight years old.", tags: ["数字"] },
     { english: "nine", chinese: "九", phonetic: "/naɪn/", example: "Nine pencils on the desk.", tags: ["数字"] },
     { english: "ten", chinese: "十", phonetic: "/ten/", example: "I count to ten.", tags: ["数字"] },
-    
-    // 颜色
+    { english: "hundred", chinese: "百", phonetic: "/ˈhʌndrəd/", example: "One hundred years.", tags: ["数字"] },
+    { english: "thousand", chinese: "千", phonetic: "/ˈθaʊznd/", example: "One thousand stars.", tags: ["数字"] },
+    { english: "first", chinese: "第一", phonetic: "/fɜːrst/", example: "This is my first day.", tags: ["数字"] },
+    { english: "second", chinese: "第二", phonetic: "/ˈsekənd/", example: "The second one.", tags: ["数字"] },
+    { english: "third", chinese: "第三", phonetic: "/θɜːrd/", example: "The third floor.", tags: ["数字"] },
+    { english: "half", chinese: "一半", phonetic: "/hæf/", example: "Half of the cake.", tags: ["数字"] },
     { english: "red", chinese: "红色", phonetic: "/red/", example: "The apple is red.", tags: ["颜色"] },
     { english: "blue", chinese: "蓝色", phonetic: "/bluː/", example: "The sky is blue.", tags: ["颜色"] },
     { english: "green", chinese: "绿色", phonetic: "/ɡriːn/", example: "The tree is green.", tags: ["颜色"] },
     { english: "yellow", chinese: "黄色", phonetic: "/ˈjeloʊ/", example: "The sun is yellow.", tags: ["颜色"] },
-    { english: "black", chinese: "黑色", phonetic: "/blæk/", example: "The cat is black.", tags: ["颜色"] },
     { english: "white", chinese: "白色", phonetic: "/waɪt/", example: "The snow is white.", tags: ["颜色"] },
-    
-    // 家庭
-    { english: "mother", chinese: "妈妈", phonetic: "/ˈmʌðər/", example: "I love my mother.", tags: ["家庭"] },
-    { english: "father", chinese: "爸爸", phonetic: "/ˈfɑːðər/", example: "My father is tall.", tags: ["家庭"] },
-    { english: "sister", chinese: "姐妹", phonetic: "/ˈsɪstər/", example: "My sister is nice.", tags: ["家庭"] },
-    { english: "brother", chinese: "兄弟", phonetic: "/ˈbrʌðər/", example: "My brother is funny.", tags: ["家庭"] },
-    { english: "family", chinese: "家庭", phonetic: "/ˈfæməli/", example: "I love my family.", tags: ["家庭"] },
-    
-    // 动物
+    { english: "black", chinese: "黑色", phonetic: "/blæk/", example: "The cat is black.", tags: ["颜色"] },
+    { english: "pink", chinese: "粉色", phonetic: "/pɪŋk/", example: "The flower is pink.", tags: ["颜色"] },
+    { english: "orange", chinese: "橙色", phonetic: "/ˈɒrɪndʒ/", example: "The orange is orange.", tags: ["颜色"] },
+    { english: "purple", chinese: "紫色", phonetic: "/ˈpɜːrpl/", example: "The grape is purple.", tags: ["颜色"] },
+    { english: "brown", chinese: "棕色", phonetic: "/braʊn/", example: "The dog is brown.", tags: ["颜色"] },
+    { english: "water", chinese: "水", phonetic: "/ˈwɔːtər/", example: "I drink water.", tags: ["食物"] },
+    { english: "milk", chinese: "牛奶", phonetic: "/mɪlk/", example: "I like milk.", tags: ["食物"] },
+    { english: "tea", chinese: "茶", phonetic: "/tiː/", example: "A cup of tea.", tags: ["食物"] },
+    { english: "coffee", chinese: "咖啡", phonetic: "/ˈkɒfi/", example: "I drink coffee.", tags: ["食物"] },
+    { english: "bread", chinese: "面包", phonetic: "/bred/", example: "I eat bread.", tags: ["食物"] },
+    { english: "rice", chinese: "米饭", phonetic: "/raɪs/", example: "I like rice.", tags: ["食物"] },
+    { english: "apple", chinese: "苹果", phonetic: "/ˈæpl/", example: "The apple is red.", tags: ["食物"] },
+    { english: "egg", chinese: "鸡蛋", phonetic: "/eɡ/", example: "I want an egg.", tags: ["食物"] },
+    { english: "cake", chinese: "蛋糕", phonetic: "/keɪk/", example: "I like cake.", tags: ["食物"] },
+    { english: "banana", chinese: "香蕉", phonetic: "/bəˈnænə/", example: "The banana is yellow.", tags: ["食物"] },
+    { english: "sugar", chinese: "糖", phonetic: "/ˈʃʊɡər/", example: "Do you want sugar?", tags: ["食物"] },
+    { english: "fish", chinese: "鱼", phonetic: "/fɪʃ/", example: "I like fish.", tags: ["食物"] },
+    { english: "meat", chinese: "肉", phonetic: "/miːt/", example: "I eat meat.", tags: ["食物"] },
+    { english: "chicken", chinese: "鸡肉", phonetic: "/ˈtʃɪkɪn/", example: "I like chicken.", tags: ["食物"] },
+    { english: "noodle", chinese: "面条", phonetic: "/ˈnuːdl/", example: "I eat noodles.", tags: ["食物"] },
+    { english: "breakfast", chinese: "早餐", phonetic: "/ˈbrekfəst/", example: "I eat breakfast at 7.", tags: ["食物"] },
+    { english: "lunch", chinese: "午餐", phonetic: "/lʌntʃ/", example: "Let us have lunch.", tags: ["食物"] },
+    { english: "dinner", chinese: "晚餐", phonetic: "/ˈdɪnər/", example: "Dinner is ready.", tags: ["食物"] },
+    { english: "soup", chinese: "汤", phonetic: "/suːp/", example: "The soup is hot.", tags: ["食物"] },
+    { english: "fruit", chinese: "水果", phonetic: "/fruːt/", example: "I like fruit.", tags: ["食物"] },
+    { english: "vegetable", chinese: "蔬菜", phonetic: "/ˈvedʒtəbl/", example: "Eat your vegetables.", tags: ["食物"] },
+    { english: "grape", chinese: "葡萄", phonetic: "/ɡreɪp/", example: "The grape is sweet.", tags: ["食物"] },
+    { english: "strawberry", chinese: "草莓", phonetic: "/ˈstrɔːberi/", example: "I like strawberries.", tags: ["食物"] },
+    { english: "tomato", chinese: "番茄", phonetic: "/təˈmeɪtoʊ/", example: "The tomato is red.", tags: ["食物"] },
+    { english: "potato", chinese: "土豆", phonetic: "/pəˈteɪtoʊ/", example: "I like potatoes.", tags: ["食物"] },
+    { english: "chocolate", chinese: "巧克力", phonetic: "/ˈtʃɒklət/", example: "I love chocolate.", tags: ["食物"] },
+    { english: "juice", chinese: "果汁", phonetic: "/dʒuːs/", example: "A glass of juice.", tags: ["食物"] },
     { english: "cat", chinese: "猫", phonetic: "/kæt/", example: "The cat is cute.", tags: ["动物"] },
     { english: "dog", chinese: "狗", phonetic: "/dɒɡ/", example: "The dog is friendly.", tags: ["动物"] },
     { english: "bird", chinese: "鸟", phonetic: "/bɜːrd/", example: "The bird can fly.", tags: ["动物"] },
-    { english: "fish", chinese: "鱼", phonetic: "/fɪʃ/", example: "The fish can swim.", tags: ["动物"] },
     { english: "rabbit", chinese: "兔子", phonetic: "/ˈræbɪt/", example: "The rabbit is white.", tags: ["动物"] },
-    
-    // 食物
-    { english: "apple", chinese: "苹果", phonetic: "/ˈæpəl/", example: "I like red apples.", tags: ["食物"] },
-    { english: "bread", chinese: "面包", phonetic: "/bred/", example: "I eat bread for breakfast.", tags: ["食物"] },
-    { english: "milk", chinese: "牛奶", phonetic: "/mɪlk/", example: "I drink milk every day.", tags: ["食物"] },
-    { english: "water", chinese: "水", phonetic: "/ˈwɔːtər/", example: "Please give me water.", tags: ["食物"] },
-    { english: "rice", chinese: "米饭", phonetic: "/raɪs/", example: "I like eating rice.", tags: ["食物"] },
-    
-    // 身体
-    { english: "head", chinese: "头", phonetic: "/hed/", example: "I nod my head.", tags: ["身体"] },
-    { english: "hand", chinese: "手", phonetic: "/hænd/", example: "Wave your hand.", tags: ["身体"] },
-    { english: "eye", chinese: "眼睛", phonetic: "/aɪ/", example: "I have two eyes.", tags: ["身体"] },
+    { english: "horse", chinese: "马", phonetic: "/hɔːrs/", example: "The horse runs fast.", tags: ["动物"] },
+    { english: "pig", chinese: "猪", phonetic: "/pɪɡ/", example: "The pig is fat.", tags: ["动物"] },
+    { english: "cow", chinese: "牛", phonetic: "/kaʊ/", example: "The cow gives milk.", tags: ["动物"] },
+    { english: "duck", chinese: "鸭子", phonetic: "/dʌk/", example: "The duck swims.", tags: ["动物"] },
+    { english: "monkey", chinese: "猴子", phonetic: "/ˈmʌŋki/", example: "The monkey is funny.", tags: ["动物"] },
+    { english: "elephant", chinese: "大象", phonetic: "/ˈelɪfənt/", example: "The elephant is big.", tags: ["动物"] },
+    { english: "bear", chinese: "熊", phonetic: "/beər/", example: "The bear is strong.", tags: ["动物"] },
+    { english: "panda", chinese: "熊猫", phonetic: "/ˈpændə/", example: "The panda eats bamboo.", tags: ["动物"] },
+    { english: "tiger", chinese: "老虎", phonetic: "/ˈtaɪɡər/", example: "The tiger is fierce.", tags: ["动物"] },
+    { english: "lion", chinese: "狮子", phonetic: "/ˈlaɪən/", example: "The lion is the king.", tags: ["动物"] },
+    { english: "snake", chinese: "蛇", phonetic: "/sneɪk/", example: "The snake is long.", tags: ["动物"] },
+    { english: "frog", chinese: "青蛙", phonetic: "/frɒɡ/", example: "The frog can jump.", tags: ["动物"] },
+    { english: "bee", chinese: "蜜蜂", phonetic: "/biː/", example: "The bee makes honey.", tags: ["动物"] },
+    { english: "butterfly", chinese: "蝴蝶", phonetic: "/ˈbʌtərflaɪ/", example: "The butterfly is beautiful.", tags: ["动物"] },
+    { english: "spider", chinese: "蜘蛛", phonetic: "/ˈspaɪdər/", example: "The spider makes a web.", tags: ["动物"] },
+    { english: "ant", chinese: "蚂蚁", phonetic: "/ænt/", example: "The ant is small.", tags: ["动物"] },
+    { english: "wolf", chinese: "狼", phonetic: "/wʊlf/", example: "The wolf howls.", tags: ["动物"] },
+    { english: "fox", chinese: "狐狸", phonetic: "/fɒks/", example: "The fox is clever.", tags: ["动物"] },
+    { english: "deer", chinese: "鹿", phonetic: "/dɪr/", example: "The deer runs fast.", tags: ["动物"] },
+    { english: "mouse", chinese: "老鼠", phonetic: "/maʊs/", example: "The mouse is small.", tags: ["动物"] },
+    { english: "sheep", chinese: "绵羊", phonetic: "/ʃiːp/", example: "The sheep gives wool.", tags: ["动物"] },
+    { english: "goat", chinese: "山羊", phonetic: "/ɡoʊt/", example: "The goat climbs.", tags: ["动物"] },
+    { english: "whale", chinese: "鲸鱼", phonetic: "/weɪl/", example: "The whale is huge.", tags: ["动物"] },
+    { english: "dolphin", chinese: "海豚", phonetic: "/ˈdɒlfɪn/", example: "The dolphin is smart.", tags: ["动物"] },
+    { english: "shark", chinese: "鲨鱼", phonetic: "/ʃɑːrk/", example: "The shark swims fast.", tags: ["动物"] },
+    { english: "turtle", chinese: "乌龟", phonetic: "/ˈtɜːrtl/", example: "The turtle is slow.", tags: ["动物"] },
+    { english: "head", chinese: "头", phonetic: "/hed/", example: "My head hurts.", tags: ["身体"] },
+    { english: "eye", chinese: "眼睛", phonetic: "/aɪ/", example: "Close your eyes.", tags: ["身体"] },
+    { english: "ear", chinese: "耳朵", phonetic: "/ɪr/", example: "I hear with my ears.", tags: ["身体"] },
     { english: "nose", chinese: "鼻子", phonetic: "/noʊz/", example: "Touch your nose.", tags: ["身体"] },
     { english: "mouth", chinese: "嘴巴", phonetic: "/maʊθ/", example: "Open your mouth.", tags: ["身体"] },
-    
-    // 学习用品
-    { english: "book", chinese: "书", phonetic: "/bʊk/", example: "I read a book.", tags: ["学习"] },
-    { english: "pen", chinese: "钢笔", phonetic: "/pen/", example: "I write with a pen.", tags: ["学习"] },
-    { english: "pencil", chinese: "铅笔", phonetic: "/ˈpensəl/", example: "This is my pencil.", tags: ["学习"] },
-    { english: "school", chinese: "学校", phonetic: "/skuːl/", example: "I go to school.", tags: ["学习"] },
-    { english: "teacher", chinese: "老师", phonetic: "/ˈtiːtʃər/", example: "My teacher is kind.", tags: ["学习"] },
-    
-    // 日常动词
-    { english: "eat", chinese: "吃", phonetic: "/iːt/", example: "I eat breakfast.", tags: ["动词"] },
-    { english: "drink", chinese: "喝", phonetic: "/drɪŋk/", example: "I drink water.", tags: ["动词"] },
-    { english: "go", chinese: "去", phonetic: "/ɡoʊ/", example: "Let us go home.", tags: ["动词"] },
-    { english: "come", chinese: "来", phonetic: "/kʌm/", example: "Come here, please.", tags: ["动词"] },
-    { english: "run", chinese: "跑", phonetic: "/rʌn/", example: "I can run fast.", tags: ["动词"] },
-    { english: "walk", chinese: "走", phonetic: "/wɔːk/", example: "Let us walk together.", tags: ["动词"] },
-    { english: "see", chinese: "看", phonetic: "/siː/", example: "I can see the moon.", tags: ["动词"] },
-    { english: "hear", chinese: "听", phonetic: "/hɪr/", example: "I hear music.", tags: ["动词"] },
-    { english: "like", chinese: "喜欢", phonetic: "/laɪk/", example: "I like ice cream.", tags: ["动词"] },
-    { english: "love", chinese: "爱", phonetic: "/lʌv/", example: "I love my parents.", tags: ["动词"] },
-    
-    // 形容词
-    { english: "big", chinese: "大的", phonetic: "/bɪɡ/", example: "The elephant is big.", tags: ["形容词"] },
-    { english: "small", chinese: "小的", phonetic: "/smɔːl/", example: "The mouse is small.", tags: ["形容词"] },
-    { english: "good", chinese: "好的", phonetic: "/ɡʊd/", example: "You are a good boy.", tags: ["形容词"] },
-    { english: "bad", chinese: "坏的", phonetic: "/bæd/", example: "This is a bad day.", tags: ["形容词"] },
-    { english: "happy", chinese: "开心的", phonetic: "/ˈhæpi/", example: "I am very happy.", tags: ["形容词"] },
-    { english: "sad", chinese: "伤心的", phonetic: "/sæd/", example: "Don't be sad.", tags: ["形容词"] },
-    { english: "hot", chinese: "热的", phonetic: "/hɒt/", example: "Today is very hot.", tags: ["形容词"] },
-    { english: "cold", chinese: "冷的", phonetic: "/koʊld/", example: "Winter is cold.", tags: ["形容词"] },
-    
-    // 时间
-    { english: "morning", chinese: "早上", phonetic: "/ˈmɔːrnɪŋ/", example: "Good morning!", tags: ["时间"] },
-    { english: "afternoon", chinese: "下午", phonetic: "/ˌæftərˈnuːn/", example: "Good afternoon!", tags: ["时间"] },
-    { english: "evening", chinese: "晚上", phonetic: "/ˈiːvnɪŋ/", example: "Good evening!", tags: ["时间"] },
-    { english: "today", chinese: "今天", phonetic: "/təˈdeɪ/", example: "Today is Monday.", tags: ["时间"] },
-    { english: "tomorrow", chinese: "明天", phonetic: "/təˈmɒroʊ/", example: "See you tomorrow.", tags: ["时间"] },
-    
-    // 天气
+    { english: "hand", chinese: "手", phonetic: "/hænd/", example: "Wash your hands.", tags: ["身体"] },
+    { english: "foot", chinese: "脚", phonetic: "/fʊt/", example: "My foot is big.", tags: ["身体"] },
+    { english: "arm", chinese: "胳膊", phonetic: "/ɑːrm/", example: "Raise your arms.", tags: ["身体"] },
+    { english: "leg", chinese: "腿", phonetic: "/leɡ/", example: "My leg hurts.", tags: ["身体"] },
+    { english: "face", chinese: "脸", phonetic: "/feɪs/", example: "Wash your face.", tags: ["身体"] },
+    { english: "hair", chinese: "头发", phonetic: "/heər/", example: "Her hair is long.", tags: ["身体"] },
+    { english: "tooth", chinese: "牙齿", phonetic: "/tuːθ/", example: "Brush your teeth.", tags: ["身体"] },
+    { english: "finger", chinese: "手指", phonetic: "/ˈfɪŋɡər/", example: "Point with your finger.", tags: ["身体"] },
+    { english: "knee", chinese: "膝盖", phonetic: "/niː/", example: "Bend your knee.", tags: ["身体"] },
+    { english: "shoulder", chinese: "肩膀", phonetic: "/ˈʃoʊldər/", example: "Tap my shoulder.", tags: ["身体"] },
+    { english: "back", chinese: "背", phonetic: "/bæk/", example: "My back hurts.", tags: ["身体"] },
+    { english: "neck", chinese: "脖子", phonetic: "/nek/", example: "Turn your neck.", tags: ["身体"] },
+    { english: "stomach", chinese: "肚子", phonetic: "/ˈstʌmək/", example: "My stomach hurts.", tags: ["身体"] },
+    { english: "heart", chinese: "心脏", phonetic: "/hɑːrt/", example: "My heart beats fast.", tags: ["身体"] },
+    { english: "brain", chinese: "大脑", phonetic: "/breɪn/", example: "Use your brain.", tags: ["身体"] },
+    { english: "chair", chinese: "椅子", phonetic: "/tʃeər/", example: "Sit on the chair.", tags: ["家具"] },
+    { english: "table", chinese: "桌子", phonetic: "/ˈteɪbl/", example: "The book is on the table.", tags: ["家具"] },
+    { english: "door", chinese: "门", phonetic: "/dɔːr/", example: "Please close the door.", tags: ["家具"] },
+    { english: "window", chinese: "窗户", phonetic: "/ˈwɪndoʊ/", example: "Open the window.", tags: ["家具"] },
+    { english: "bed", chinese: "床", phonetic: "/bed/", example: "I sleep in my bed.", tags: ["家具"] },
+    { english: "desk", chinese: "书桌", phonetic: "/desk/", example: "The book is on the desk.", tags: ["家具"] },
+    { english: "sofa", chinese: "沙发", phonetic: "/ˈsoʊfə/", example: "Sit on the sofa.", tags: ["家具"] },
+    { english: "shelf", chinese: "架子", phonetic: "/ʃelf/", example: "Books on the shelf.", tags: ["家具"] },
+    { english: "floor", chinese: "地板", phonetic: "/flɔːr/", example: "The floor is clean.", tags: ["家具"] },
+    { english: "wall", chinese: "墙", phonetic: "/wɔːl/", example: "The wall is white.", tags: ["家具"] },
+    { english: "cup", chinese: "杯子", phonetic: "/kʌp/", example: "A cup of tea, please.", tags: ["日用品"] },
+    { english: "plate", chinese: "盘子", phonetic: "/pleɪt/", example: "Put food on the plate.", tags: ["日用品"] },
+    { english: "bottle", chinese: "瓶子", phonetic: "/ˈbɒtl/", example: "A bottle of water.", tags: ["日用品"] },
+    { english: "key", chinese: "钥匙", phonetic: "/kiː/", example: "Where is my key?", tags: ["日用品"] },
+    { english: "clock", chinese: "钟", phonetic: "/klɒk/", example: "Look at the clock.", tags: ["日用品"] },
+    { english: "lamp", chinese: "灯", phonetic: "/læmp/", example: "Turn on the lamp.", tags: ["日用品"] },
+    { english: "bag", chinese: "包", phonetic: "/bæɡ/", example: "I carry my bag.", tags: ["日用品"] },
+    { english: "pen", chinese: "钢笔", phonetic: "/pen/", example: "Write with a pen.", tags: ["日用品"] },
+    { english: "paper", chinese: "纸", phonetic: "/ˈpeɪpər/", example: "Write on the paper.", tags: ["日用品"] },
+    { english: "box", chinese: "盒子", phonetic: "/bɒks/", example: "Open the box.", tags: ["日用品"] },
+    { english: "mirror", chinese: "镜子", phonetic: "/ˈmɪrər/", example: "Look in the mirror.", tags: ["日用品"] },
+    { english: "soap", chinese: "肥皂", phonetic: "/soʊp/", example: "Wash with soap.", tags: ["日用品"] },
+    { english: "towel", chinese: "毛巾", phonetic: "/ˈtaʊəl/", example: "Dry with a towel.", tags: ["日用品"] },
+    { english: "bowl", chinese: "碗", phonetic: "/boʊl/", example: "A bowl of rice.", tags: ["日用品"] },
+    { english: "phone", chinese: "电话", phonetic: "/foʊn/", example: "Answer the phone.", tags: ["日用品"] },
+    { english: "computer", chinese: "电脑", phonetic: "/kəmˈpjuːtər/", example: "I use a computer.", tags: ["日用品"] },
+    { english: "umbrella", chinese: "雨伞", phonetic: "/ʌmˈbrelə/", example: "Take an umbrella.", tags: ["日用品"] },
+    { english: "wallet", chinese: "钱包", phonetic: "/ˈwɒlɪt/", example: "My wallet is brown.", tags: ["日用品"] },
+    { english: "watch", chinese: "手表", phonetic: "/wɒtʃ/", example: "Look at my watch.", tags: ["日用品"] },
+    { english: "comb", chinese: "梳子", phonetic: "/koʊm/", example: "Comb your hair.", tags: ["日用品"] },
+    { english: "fork", chinese: "叉子", phonetic: "/fɔːrk/", example: "Eat with a fork.", tags: ["日用品"] },
+    { english: "knife", chinese: "刀", phonetic: "/naɪf/", example: "Cut with a knife.", tags: ["日用品"] },
+    { english: "spoon", chinese: "勺子", phonetic: "/spuːn/", example: "Eat with a spoon.", tags: ["日用品"] },
+    { english: "glass", chinese: "玻璃杯", phonetic: "/ɡlæs/", example: "A glass of water.", tags: ["日用品"] },
+    { english: "toy", chinese: "玩具", phonetic: "/tɔɪ/", example: "This is my toy.", tags: ["日用品"] },
+    { english: "gift", chinese: "礼物", phonetic: "/ɡɪft/", example: "This is a gift.", tags: ["日用品"] },
+    { english: "map", chinese: "地图", phonetic: "/mæp/", example: "Look at the map.", tags: ["日用品"] },
+    { english: "photo", chinese: "照片", phonetic: "/ˈfoʊtoʊ/", example: "Take a photo.", tags: ["日用品"] },
+    { english: "flag", chinese: "旗帜", phonetic: "/flæɡ/", example: "The flag is red.", tags: ["日用品"] },
+    { english: "candle", chinese: "蜡烛", phonetic: "/ˈkændl/", example: "Blow out the candle.", tags: ["日用品"] },
+    { english: "guitar", chinese: "吉他", phonetic: "/ɡɪˈtɑːr/", example: "Play the guitar.", tags: ["日用品"] },
+    { english: "piano", chinese: "钢琴", phonetic: "/piˈænoʊ/", example: "She plays piano.", tags: ["日用品"] },
+    { english: "drum", chinese: "鼓", phonetic: "/drʌm/", example: "Beat the drum.", tags: ["日用品"] },
+    { english: "sun", chinese: "太阳", phonetic: "/sʌn/", example: "The sun is bright.", tags: ["自然"] },
+    { english: "moon", chinese: "月亮", phonetic: "/muːn/", example: "The moon is bright.", tags: ["自然"] },
+    { english: "star", chinese: "星星", phonetic: "/stɑːr/", example: "I see a star.", tags: ["自然"] },
+    { english: "sky", chinese: "天空", phonetic: "/skaɪ/", example: "The sky is blue.", tags: ["自然"] },
+    { english: "tree", chinese: "树", phonetic: "/triː/", example: "The tree is tall.", tags: ["自然"] },
+    { english: "flower", chinese: "花", phonetic: "/ˈflaʊər/", example: "The flower is beautiful.", tags: ["自然"] },
+    { english: "grass", chinese: "草", phonetic: "/ɡræs/", example: "Do not walk on the grass.", tags: ["自然"] },
+    { english: "river", chinese: "河流", phonetic: "/ˈrɪvər/", example: "The river is long.", tags: ["自然"] },
+    { english: "lake", chinese: "湖", phonetic: "/leɪk/", example: "Swim in the lake.", tags: ["自然"] },
+    { english: "sea", chinese: "大海", phonetic: "/siː/", example: "The sea is blue.", tags: ["自然"] },
+    { english: "mountain", chinese: "山", phonetic: "/ˈmaʊntn/", example: "Climb the mountain.", tags: ["自然"] },
+    { english: "hill", chinese: "小山", phonetic: "/hɪl/", example: "Walk up the hill.", tags: ["自然"] },
+    { english: "forest", chinese: "森林", phonetic: "/ˈfɒrɪst/", example: "Animals live in the forest.", tags: ["自然"] },
+    { english: "island", chinese: "岛屿", phonetic: "/ˈaɪlənd/", example: "The island is beautiful.", tags: ["自然"] },
+    { english: "desert", chinese: "沙漠", phonetic: "/ˈdezərt/", example: "The desert is hot.", tags: ["自然"] },
+    { english: "beach", chinese: "海滩", phonetic: "/biːtʃ/", example: "I play on the beach.", tags: ["自然"] },
+    { english: "rock", chinese: "石头", phonetic: "/rɒk/", example: "Sit on the rock.", tags: ["自然"] },
+    { english: "sand", chinese: "沙子", phonetic: "/sænd/", example: "Play in the sand.", tags: ["自然"] },
+    { english: "rainbow", chinese: "彩虹", phonetic: "/ˈreɪnboʊ/", example: "Look at the rainbow!", tags: ["自然"] },
+    { english: "cloud", chinese: "云", phonetic: "/klaʊd/", example: "The cloud is white.", tags: ["自然"] },
     { english: "sunny", chinese: "晴朗的", phonetic: "/ˈsʌni/", example: "It is sunny today.", tags: ["天气"] },
     { english: "rainy", chinese: "下雨的", phonetic: "/ˈreɪni/", example: "It is rainy outside.", tags: ["天气"] },
     { english: "cloudy", chinese: "多云的", phonetic: "/ˈklaʊdi/", example: "The sky is cloudy.", tags: ["天气"] },
-    
-    // 地点
+    { english: "windy", chinese: "有风的", phonetic: "/ˈwɪndi/", example: "It is windy today.", tags: ["天气"] },
+    { english: "snowy", chinese: "下雪的", phonetic: "/ˈsnoʊi/", example: "It is snowy today.", tags: ["天气"] },
+    { english: "hot", chinese: "热的", phonetic: "/hɒt/", example: "It is very hot.", tags: ["天气"] },
+    { english: "cold", chinese: "冷的", phonetic: "/koʊld/", example: "It is cold outside.", tags: ["天气"] },
+    { english: "warm", chinese: "温暖的", phonetic: "/wɔːrm/", example: "It is warm today.", tags: ["天气"] },
+    { english: "cool", chinese: "凉爽的", phonetic: "/kuːl/", example: "It is cool today.", tags: ["天气"] },
+    { english: "rain", chinese: "雨", phonetic: "/reɪn/", example: "The rain is heavy.", tags: ["天气"] },
+    { english: "snow", chinese: "雪", phonetic: "/snoʊ/", example: "It snows in winter.", tags: ["天气"] },
+    { english: "wind", chinese: "风", phonetic: "/wɪnd/", example: "The wind is strong.", tags: ["天气"] },
+    { english: "storm", chinese: "暴风雨", phonetic: "/stɔːrm/", example: "The storm is strong.", tags: ["天气"] },
+    { english: "thunder", chinese: "雷", phonetic: "/ˈθʌndər/", example: "I hear thunder.", tags: ["天气"] },
+    { english: "lightning", chinese: "闪电", phonetic: "/ˈlaɪtnɪŋ/", example: "I see lightning.", tags: ["天气"] },
+    { english: "ice", chinese: "冰", phonetic: "/aɪs/", example: "The ice is cold.", tags: ["天气"] },
+    { english: "fog", chinese: "雾", phonetic: "/fɒɡ/", example: "I cannot see in the fog.", tags: ["天气"] },
+    { english: "morning", chinese: "早上", phonetic: "/ˈmɔːrnɪŋ/", example: "Good morning!", tags: ["时间"] },
+    { english: "afternoon", chinese: "下午", phonetic: "/ˌæftərˈnuːn/", example: "Good afternoon!", tags: ["时间"] },
+    { english: "evening", chinese: "晚上", phonetic: "/ˈiːvnɪŋ/", example: "Good evening!", tags: ["时间"] },
+    { english: "night", chinese: "夜晚", phonetic: "/naɪt/", example: "Good night!", tags: ["时间"] },
+    { english: "today", chinese: "今天", phonetic: "/təˈdeɪ/", example: "Today is Monday.", tags: ["时间"] },
+    { english: "tomorrow", chinese: "明天", phonetic: "/təˈmɒroʊ/", example: "See you tomorrow.", tags: ["时间"] },
+    { english: "yesterday", chinese: "昨天", phonetic: "/ˈjestərdeɪ/", example: "I was busy yesterday.", tags: ["时间"] },
+    { english: "hour", chinese: "小时", phonetic: "/ˈaʊər/", example: "One hour is 60 minutes.", tags: ["时间"] },
+    { english: "minute", chinese: "分钟", phonetic: "/ˈmɪnɪt/", example: "Wait a minute.", tags: ["时间"] },
+    { english: "week", chinese: "星期", phonetic: "/wiːk/", example: "See you next week.", tags: ["时间"] },
+    { english: "month", chinese: "月", phonetic: "/mʌnθ/", example: "This month is busy.", tags: ["时间"] },
+    { english: "year", chinese: "年", phonetic: "/jɪr/", example: "Happy New Year!", tags: ["时间"] },
+    { english: "spring", chinese: "春天", phonetic: "/sprɪŋ/", example: "Flowers bloom in spring.", tags: ["时间"] },
+    { english: "summer", chinese: "夏天", phonetic: "/ˈsʌmər/", example: "Summer is hot.", tags: ["时间"] },
+    { english: "autumn", chinese: "秋天", phonetic: "/ˈɔːtəm/", example: "Leaves fall in autumn.", tags: ["时间"] },
+    { english: "winter", chinese: "冬天", phonetic: "/ˈwɪntər/", example: "Winter is cold.", tags: ["时间"] },
+    { english: "Sunday", chinese: "星期日", phonetic: "/ˈsʌndeɪ/", example: "I rest on Sunday.", tags: ["时间"] },
+    { english: "Monday", chinese: "星期一", phonetic: "/ˈmʌndeɪ/", example: "Monday is the first day.", tags: ["时间"] },
+    { english: "Tuesday", chinese: "星期二", phonetic: "/ˈtjuːzdeɪ/", example: "I have class on Tuesday.", tags: ["时间"] },
+    { english: "Wednesday", chinese: "星期三", phonetic: "/ˈwenzdeɪ/", example: "Wednesday is the middle.", tags: ["时间"] },
+    { english: "Thursday", chinese: "星期四", phonetic: "/ˈθɜːrzdeɪ/", example: "Thursday is almost Friday.", tags: ["时间"] },
+    { english: "Friday", chinese: "星期五", phonetic: "/ˈfraɪdeɪ/", example: "I love Friday!", tags: ["时间"] },
+    { english: "Saturday", chinese: "星期六", phonetic: "/ˈsætərdeɪ/", example: "I play on Saturday.", tags: ["时间"] },
+    { english: "January", chinese: "一月", phonetic: "/ˈdʒænjueri/", example: "January is the first month.", tags: ["时间"] },
+    { english: "February", chinese: "二月", phonetic: "/ˈfebrueri/", example: "February is short.", tags: ["时间"] },
+    { english: "March", chinese: "三月", phonetic: "/mɑːrtʃ/", example: "March is in spring.", tags: ["时间"] },
+    { english: "April", chinese: "四月", phonetic: "/ˈeɪprəl/", example: "April is warm.", tags: ["时间"] },
+    { english: "May", chinese: "五月", phonetic: "/meɪ/", example: "May is beautiful.", tags: ["时间"] },
+    { english: "June", chinese: "六月", phonetic: "/dʒuːn/", example: "June is summer.", tags: ["时间"] },
+    { english: "July", chinese: "七月", phonetic: "/dʒuˈlaɪ/", example: "July is hot.", tags: ["时间"] },
+    { english: "August", chinese: "八月", phonetic: "/ˈɔːɡəst/", example: "August is vacation.", tags: ["时间"] },
+    { english: "September", chinese: "九月", phonetic: "/sepˈtembər/", example: "School starts in September.", tags: ["时间"] },
+    { english: "October", chinese: "十月", phonetic: "/ɒkˈtoʊbər/", example: "October is autumn.", tags: ["时间"] },
+    { english: "November", chinese: "十一月", phonetic: "/noʊˈvembər/", example: "November is cool.", tags: ["时间"] },
+    { english: "December", chinese: "十二月", phonetic: "/dɪˈsembər/", example: "December is winter.", tags: ["时间"] },
+    { english: "birthday", chinese: "生日", phonetic: "/ˈbɜːrθdeɪ/", example: "Happy birthday!", tags: ["时间"] },
+    { english: "go", chinese: "去", phonetic: "/ɡoʊ/", example: "Let us go!", tags: ["动词"] },
+    { english: "come", chinese: "来", phonetic: "/kʌm/", example: "Come here.", tags: ["动词"] },
+    { english: "see", chinese: "看见", phonetic: "/siː/", example: "I see a bird.", tags: ["动词"] },
+    { english: "eat", chinese: "吃", phonetic: "/iːt/", example: "I eat lunch.", tags: ["动词"] },
+    { english: "drink", chinese: "喝", phonetic: "/drɪŋk/", example: "Drink some water.", tags: ["动词"] },
+    { english: "make", chinese: "做", phonetic: "/meɪk/", example: "Make a cake.", tags: ["动词"] },
+    { english: "take", chinese: "拿", phonetic: "/teɪk/", example: "Take this apple.", tags: ["动词"] },
+    { english: "give", chinese: "给", phonetic: "/ɡɪv/", example: "Give me the pen.", tags: ["动词"] },
+    { english: "put", chinese: "放", phonetic: "/pʊt/", example: "Put it on the table.", tags: ["动词"] },
+    { english: "find", chinese: "找到", phonetic: "/faɪnd/", example: "I find my key.", tags: ["动词"] },
+    { english: "stop", chinese: "停止", phonetic: "/stɒp/", example: "Stop talking.", tags: ["动词"] },
+    { english: "wait", chinese: "等待", phonetic: "/weɪt/", example: "Wait for me.", tags: ["动词"] },
+    { english: "try", chinese: "尝试", phonetic: "/traɪ/", example: "Try again!", tags: ["动词"] },
+    { english: "climb", chinese: "爬", phonetic: "/klaɪm/", example: "Climb the tree.", tags: ["动词"] },
+    { english: "walk", chinese: "走", phonetic: "/wɔːk/", example: "Walk with me.", tags: ["动词"] },
+    { english: "sit", chinese: "坐", phonetic: "/sɪt/", example: "Sit down please.", tags: ["动词"] },
+    { english: "stand", chinese: "站", phonetic: "/stænd/", example: "Stand up!", tags: ["动词"] },
+    { english: "talk", chinese: "说话", phonetic: "/tɔːk/", example: "Let us talk.", tags: ["动词"] },
+    { english: "listen", chinese: "听", phonetic: "/ˈlɪsn/", example: "Listen to me.", tags: ["动词"] },
+    { english: "think", chinese: "想", phonetic: "/θɪŋk/", example: "Let me think.", tags: ["动词"] },
+    { english: "know", chinese: "知道", phonetic: "/noʊ/", example: "I know the answer.", tags: ["动词"] },
+    { english: "want", chinese: "想要", phonetic: "/wɒnt/", example: "I want a book.", tags: ["动词"] },
+    { english: "need", chinese: "需要", phonetic: "/niːd/", example: "I need help.", tags: ["动词"] },
+    { english: "love", chinese: "爱", phonetic: "/lʌv/", example: "I love my family.", tags: ["动词"] },
+    { english: "ask", chinese: "问", phonetic: "/æsk/", example: "Ask a question.", tags: ["动词"] },
+    { english: "teach", chinese: "教", phonetic: "/tiːtʃ/", example: "She teaches me.", tags: ["动词"] },
+    { english: "learn", chinese: "学习", phonetic: "/lɜːrn/", example: "I learn English.", tags: ["动词"] },
+    { english: "bring", chinese: "带来", phonetic: "/brɪŋ/", example: "Bring me water.", tags: ["动词"] },
+    { english: "carry", chinese: "携带", phonetic: "/ˈkæri/", example: "Carry this bag.", tags: ["动词"] },
+    { english: "throw", chinese: "扔", phonetic: "/θroʊ/", example: "Throw the ball.", tags: ["动词"] },
+    { english: "catch", chinese: "接住", phonetic: "/kætʃ/", example: "Catch the ball!", tags: ["动词"] },
+    { english: "push", chinese: "推", phonetic: "/pʊʃ/", example: "Push the door.", tags: ["动词"] },
+    { english: "pull", chinese: "拉", phonetic: "/pʊl/", example: "Pull the rope.", tags: ["动词"] },
+    { english: "cut", chinese: "切", phonetic: "/kʌt/", example: "Cut the cake.", tags: ["动词"] },
+    { english: "fix", chinese: "修理", phonetic: "/fɪks/", example: "Fix the bike.", tags: ["动词"] },
+    { english: "send", chinese: "发送", phonetic: "/send/", example: "Send a message.", tags: ["动词"] },
+    { english: "call", chinese: "打电话", phonetic: "/kɔːl/", example: "Call me later.", tags: ["动词"] },
+    { english: "begin", chinese: "开始", phonetic: "/bɪˈɡɪn/", example: "Let us begin!", tags: ["动词"] },
+    { english: "finish", chinese: "完成", phonetic: "/ˈfɪnɪʃ/", example: "Finish your homework.", tags: ["动词"] },
+    { english: "remember", chinese: "记住", phonetic: "/rɪˈmembər/", example: "Remember this word.", tags: ["动词"] },
+    { english: "forget", chinese: "忘记", phonetic: "/fərˈɡet/", example: "Do not forget!", tags: ["动词"] },
+    { english: "choose", chinese: "选择", phonetic: "/tʃuːz/", example: "Choose one.", tags: ["动词"] },
+    { english: "move", chinese: "移动", phonetic: "/muːv/", example: "Move the chair.", tags: ["动词"] },
+    { english: "hide", chinese: "躲藏", phonetic: "/haɪd/", example: "Hide and seek!", tags: ["动词"] },
+    { english: "cry", chinese: "哭", phonetic: "/kraɪ/", example: "The baby cries.", tags: ["动词"] },
+    { english: "laugh", chinese: "笑", phonetic: "/læf/", example: "We laugh together.", tags: ["动词"] },
+    { english: "smile", chinese: "微笑", phonetic: "/smaɪl/", example: "She smiles at me.", tags: ["动词"] },
+    { english: "shout", chinese: "喊", phonetic: "/ʃaʊt/", example: "Do not shout.", tags: ["动词"] },
+    { english: "sing", chinese: "唱歌", phonetic: "/sɪŋ/", example: "I like to sing.", tags: ["动词"] },
+    { english: "dance", chinese: "跳舞", phonetic: "/dæns/", example: "She can dance well.", tags: ["动词"] },
+    { english: "swim", chinese: "游泳", phonetic: "/swɪm/", example: "I can swim.", tags: ["动词"] },
+    { english: "draw", chinese: "画画", phonetic: "/drɔː/", example: "I draw a picture.", tags: ["动词"] },
+    { english: "read", chinese: "读", phonetic: "/riːd/", example: "I read a story.", tags: ["动词"] },
+    { english: "write", chinese: "写", phonetic: "/raɪt/", example: "Write your name.", tags: ["动词"] },
+    { english: "play", chinese: "玩", phonetic: "/pleɪ/", example: "Let us play together.", tags: ["动词"] },
+    { english: "sleep", chinese: "睡觉", phonetic: "/sliːp/", example: "I sleep at nine.", tags: ["动词"] },
+    { english: "wake", chinese: "醒来", phonetic: "/weɪk/", example: "I wake up early.", tags: ["动词"] },
+    { english: "cook", chinese: "做饭", phonetic: "/kʊk/", example: "Mom cooks dinner.", tags: ["动词"] },
+    { english: "wash", chinese: "洗", phonetic: "/wɒʃ/", example: "Wash your hands.", tags: ["动词"] },
+    { english: "clean", chinese: "打扫", phonetic: "/kliːn/", example: "Clean your room.", tags: ["动词"] },
+    { english: "help", chinese: "帮助", phonetic: "/help/", example: "Can you help me?", tags: ["动词"] },
+    { english: "open", chinese: "打开", phonetic: "/ˈoʊpən/", example: "Open your book.", tags: ["动词"] },
+    { english: "close", chinese: "关闭", phonetic: "/kloʊz/", example: "Close the window.", tags: ["动词"] },
+    { english: "fly", chinese: "飞", phonetic: "/flaɪ/", example: "Birds can fly.", tags: ["动词"] },
+    { english: "run", chinese: "跑", phonetic: "/rʌn/", example: "I can run fast.", tags: ["动词"] },
+    { english: "jump", chinese: "跳", phonetic: "/dʒʌmp/", example: "Jump high!", tags: ["动词"] },
+    { english: "buy", chinese: "买", phonetic: "/baɪ/", example: "I want to buy a book.", tags: ["动词"] },
+    { english: "sell", chinese: "卖", phonetic: "/sel/", example: "They sell fruit.", tags: ["动词"] },
+    { english: "pay", chinese: "支付", phonetic: "/peɪ/", example: "Pay the money.", tags: ["动词"] },
+    { english: "spend", chinese: "花费", phonetic: "/spend/", example: "Spend time wisely.", tags: ["动词"] },
+    { english: "save", chinese: "节省", phonetic: "/seɪv/", example: "Save your money.", tags: ["动词"] },
+    { english: "use", chinese: "使用", phonetic: "/juːz/", example: "Use your pen.", tags: ["动词"] },
+    { english: "hold", chinese: "握住", phonetic: "/hoʊld/", example: "Hold my hand.", tags: ["动词"] },
+    { english: "touch", chinese: "触摸", phonetic: "/tʌtʃ/", example: "Do not touch!", tags: ["动词"] },
+    { english: "feel", chinese: "感觉", phonetic: "/fiːl/", example: "I feel happy.", tags: ["动词"] },
+    { english: "smell", chinese: "闻", phonetic: "/smel/", example: "Smell the flower.", tags: ["动词"] },
+    { english: "taste", chinese: "尝", phonetic: "/teɪst/", example: "Taste the food.", tags: ["动词"] },
+    { english: "grow", chinese: "生长", phonetic: "/ɡroʊ/", example: "Plants grow fast.", tags: ["动词"] },
+    { english: "change", chinese: "改变", phonetic: "/tʃeɪndʒ/", example: "Change your clothes.", tags: ["动词"] },
+    { english: "share", chinese: "分享", phonetic: "/ʃeər/", example: "Share with friends.", tags: ["动词"] },
+    { english: "pick", chinese: "捡起", phonetic: "/pɪk/", example: "Pick up the pen.", tags: ["动词"] },
+    { english: "drop", chinese: "掉落", phonetic: "/drɒp/", example: "Do not drop it.", tags: ["动词"] },
+    { english: "break", chinese: "打破", phonetic: "/breɪk/", example: "Do not break the glass.", tags: ["动词"] },
+    { english: "build", chinese: "建造", phonetic: "/bɪld/", example: "Build a house.", tags: ["动词"] },
+    { english: "enter", chinese: "进入", phonetic: "/ˈentər/", example: "Enter the room.", tags: ["动词"] },
+    { english: "leave", chinese: "离开", phonetic: "/liːv/", example: "I must leave now.", tags: ["动词"] },
+    { english: "arrive", chinese: "到达", phonetic: "/əˈraɪv/", example: "Arrive at school.", tags: ["动词"] },
+    { english: "return", chinese: "返回", phonetic: "/rɪˈtɜːrn/", example: "Return home.", tags: ["动词"] },
+    { english: "visit", chinese: "拜访", phonetic: "/ˈvɪzɪt/", example: "Visit my friend.", tags: ["动词"] },
+    { english: "travel", chinese: "旅行", phonetic: "/ˈtrævl/", example: "I like to travel.", tags: ["动词"] },
+    { english: "win", chinese: "赢", phonetic: "/wɪn/", example: "We win the game!", tags: ["动词"] },
+    { english: "lose", chinese: "输", phonetic: "/luːz/", example: "Do not lose hope.", tags: ["动词"] },
+    { english: "big", chinese: "大的", phonetic: "/bɪɡ/", example: "The elephant is big.", tags: ["形容词"] },
+    { english: "small", chinese: "小的", phonetic: "/smɔːl/", example: "The ant is small.", tags: ["形容词"] },
+    { english: "good", chinese: "好的", phonetic: "/ɡʊd/", example: "Very good!", tags: ["形容词"] },
+    { english: "bad", chinese: "坏的", phonetic: "/bæd/", example: "That is bad.", tags: ["形容词"] },
+    { english: "happy", chinese: "快乐的", phonetic: "/ˈhæpi/", example: "I feel happy today.", tags: ["形容词"] },
+    { english: "sad", chinese: "伤心的", phonetic: "/sæd/", example: "I feel sad.", tags: ["形容词"] },
+    { english: "fast", chinese: "快的", phonetic: "/fæst/", example: "The car is fast.", tags: ["形容词"] },
+    { english: "slow", chinese: "慢的", phonetic: "/sloʊ/", example: "The turtle is slow.", tags: ["形容词"] },
+    { english: "tall", chinese: "高的", phonetic: "/tɔːl/", example: "My father is tall.", tags: ["形容词"] },
+    { english: "short", chinese: "矮的", phonetic: "/ʃɔːrt/", example: "The boy is short.", tags: ["形容词"] },
+    { english: "long", chinese: "长的", phonetic: "/lɒŋ/", example: "The snake is long.", tags: ["形容词"] },
+    { english: "new", chinese: "新的", phonetic: "/njuː/", example: "I have a new book.", tags: ["形容词"] },
+    { english: "old", chinese: "旧的", phonetic: "/oʊld/", example: "This is an old book.", tags: ["形容词"] },
+    { english: "little", chinese: "小的", phonetic: "/ˈlɪtl/", example: "A little dog.", tags: ["形容词"] },
+    { english: "strong", chinese: "强壮的", phonetic: "/strɒŋ/", example: "He is very strong.", tags: ["形容词"] },
+    { english: "young", chinese: "年轻的", phonetic: "/jʌŋ/", example: "She is young.", tags: ["形容词"] },
+    { english: "pretty", chinese: "漂亮的", phonetic: "/ˈprɪti/", example: "The girl is pretty.", tags: ["形容词"] },
+    { english: "beautiful", chinese: "美丽的", phonetic: "/ˈbjuːtɪfl/", example: "The flower is beautiful.", tags: ["形容词"] },
+    { english: "dirty", chinese: "脏的", phonetic: "/ˈdɜːrti/", example: "Your hands are dirty.", tags: ["形容词"] },
+    { english: "easy", chinese: "容易的", phonetic: "/ˈiːzi/", example: "This is easy.", tags: ["形容词"] },
+    { english: "hard", chinese: "难的", phonetic: "/hɑːrd/", example: "The test is hard.", tags: ["形容词"] },
+    { english: "right", chinese: "正确的", phonetic: "/raɪt/", example: "You are right!", tags: ["形容词"] },
+    { english: "wrong", chinese: "错误的", phonetic: "/rɒŋ/", example: "The answer is wrong.", tags: ["形容词"] },
+    { english: "quiet", chinese: "安静的", phonetic: "/ˈkwaɪət/", example: "Be quiet!", tags: ["形容词"] },
+    { english: "loud", chinese: "大声的", phonetic: "/laʊd/", example: "Too loud!", tags: ["形容词"] },
+    { english: "soft", chinese: "软的", phonetic: "/sɒft/", example: "The pillow is soft.", tags: ["形容词"] },
+    { english: "heavy", chinese: "重的", phonetic: "/ˈhevi/", example: "The box is heavy.", tags: ["形容词"] },
+    { english: "dark", chinese: "暗的", phonetic: "/dɑːrk/", example: "It is dark outside.", tags: ["形容词"] },
+    { english: "bright", chinese: "明亮的", phonetic: "/braɪt/", example: "The sun is bright.", tags: ["形容词"] },
+    { english: "thick", chinese: "厚的", phonetic: "/θɪk/", example: "The book is thick.", tags: ["形容词"] },
+    { english: "thin", chinese: "薄的", phonetic: "/θɪn/", example: "The paper is thin.", tags: ["形容词"] },
+    { english: "full", chinese: "满的", phonetic: "/fʊl/", example: "The cup is full.", tags: ["形容词"] },
+    { english: "empty", chinese: "空的", phonetic: "/ˈempti/", example: "The box is empty.", tags: ["形容词"] },
+    { english: "safe", chinese: "安全的", phonetic: "/seɪf/", example: "You are safe now.", tags: ["形容词"] },
+    { english: "dangerous", chinese: "危险的", phonetic: "/ˈdeɪndʒərəs/", example: "It is dangerous!", tags: ["形容词"] },
+    { english: "angry", chinese: "生气的", phonetic: "/ˈæŋɡri/", example: "Dad is angry.", tags: ["形容词"] },
+    { english: "afraid", chinese: "害怕的", phonetic: "/əˈfreɪd/", example: "I am afraid of dogs.", tags: ["形容词"] },
+    { english: "tired", chinese: "累的", phonetic: "/ˈtaɪərd/", example: "I am so tired.", tags: ["形容词"] },
+    { english: "hungry", chinese: "饿的", phonetic: "/ˈhʌŋɡri/", example: "I am hungry.", tags: ["形容词"] },
+    { english: "thirsty", chinese: "渴的", phonetic: "/ˈθɜːrsti/", example: "I am thirsty.", tags: ["形容词"] },
+    { english: "wet", chinese: "湿的", phonetic: "/wet/", example: "My shoes are wet.", tags: ["形容词"] },
+    { english: "dry", chinese: "干的", phonetic: "/draɪ/", example: "My clothes are dry.", tags: ["形容词"] },
+    { english: "surprised", chinese: "惊讶的", phonetic: "/sərˈpraɪzd/", example: "I am surprised!", tags: ["形容词"] },
+    { english: "proud", chinese: "自豪的", phonetic: "/praʊd/", example: "I am proud of you.", tags: ["形容词"] },
+    { english: "lonely", chinese: "孤独的", phonetic: "/ˈloʊnli/", example: "I feel lonely.", tags: ["形容词"] },
+    { english: "worried", chinese: "担心的", phonetic: "/ˈwɜːrid/", example: "I am worried.", tags: ["形容词"] },
+    { english: "nervous", chinese: "紧张的", phonetic: "/ˈnɜːrvəs/", example: "I feel nervous.", tags: ["形容词"] },
+    { english: "wonderful", chinese: "精彩的", phonetic: "/ˈwʌndərfl/", example: "It is wonderful!", tags: ["形容词"] },
+    { english: "terrible", chinese: "糟糕的", phonetic: "/ˈterəbl/", example: "That is terrible.", tags: ["形容词"] },
+    { english: "bored", chinese: "无聊的", phonetic: "/bɔːrd/", example: "I feel bored.", tags: ["形容词"] },
+    { english: "excited", chinese: "兴奋的", phonetic: "/ɪkˈsaɪtɪd/", example: "I am so excited!", tags: ["形容词"] },
+    { english: "scared", chinese: "害怕的", phonetic: "/skerd/", example: "I am scared.", tags: ["形容词"] },
+    { english: "favorite", chinese: "最喜欢的", phonetic: "/ˈfeɪvərɪt/", example: "This is my favorite.", tags: ["形容词"] },
+    { english: "teacher", chinese: "老师", phonetic: "/ˈtiːtʃər/", example: "My teacher is nice.", tags: ["职业"] },
+    { english: "doctor", chinese: "医生", phonetic: "/ˈdɒktər/", example: "I want to be a doctor.", tags: ["职业"] },
+    { english: "nurse", chinese: "护士", phonetic: "/nɜːrs/", example: "The nurse is kind.", tags: ["职业"] },
+    { english: "driver", chinese: "司机", phonetic: "/ˈdraɪvər/", example: "My uncle is a driver.", tags: ["职业"] },
+    { english: "farmer", chinese: "农民", phonetic: "/ˈfɑːrmər/", example: "The farmer grows rice.", tags: ["职业"] },
+    { english: "police", chinese: "警察", phonetic: "/pəˈliːs/", example: "Call the police.", tags: ["职业"] },
+    { english: "soldier", chinese: "士兵", phonetic: "/ˈsoʊldʒər/", example: "The soldier is brave.", tags: ["职业"] },
+    { english: "singer", chinese: "歌手", phonetic: "/ˈsɪŋər/", example: "She is a singer.", tags: ["职业"] },
+    { english: "worker", chinese: "工人", phonetic: "/ˈwɜːrkər/", example: "The worker is strong.", tags: ["职业"] },
+    { english: "artist", chinese: "艺术家", phonetic: "/ˈɑːrtɪst/", example: "He is an artist.", tags: ["职业"] },
+    { english: "player", chinese: "运动员", phonetic: "/ˈpleɪər/", example: "He is a good player.", tags: ["职业"] },
+    { english: "student", chinese: "学生", phonetic: "/ˈstjuːdnt/", example: "I am a student.", tags: ["职业"] },
+    { english: "mother", chinese: "妈妈", phonetic: "/ˈmʌðər/", example: "I love my mother.", tags: ["家庭"] },
+    { english: "father", chinese: "爸爸", phonetic: "/ˈfɑːðər/", example: "My father is tall.", tags: ["家庭"] },
+    { english: "brother", chinese: "兄弟", phonetic: "/ˈbrʌðər/", example: "My brother is funny.", tags: ["家庭"] },
+    { english: "sister", chinese: "姐妹", phonetic: "/ˈsɪstər/", example: "My sister is kind.", tags: ["家庭"] },
+    { english: "family", chinese: "家庭", phonetic: "/ˈfæməli/", example: "I love my family.", tags: ["家庭"] },
+    { english: "friend", chinese: "朋友", phonetic: "/frend/", example: "She is my best friend.", tags: ["人物"] },
+    { english: "baby", chinese: "婴儿", phonetic: "/ˈbeɪbi/", example: "The baby is sleeping.", tags: ["人物"] },
+    { english: "child", chinese: "孩子", phonetic: "/tʃaɪld/", example: "The child is happy.", tags: ["人物"] },
+    { english: "boy", chinese: "男孩", phonetic: "/bɔɪ/", example: "The boy runs fast.", tags: ["人物"] },
+    { english: "girl", chinese: "女孩", phonetic: "/ɡɜːrl/", example: "The girl reads a book.", tags: ["人物"] },
+    { english: "people", chinese: "人们", phonetic: "/ˈpiːpl/", example: "Many people are here.", tags: ["人物"] },
+    { english: "neighbor", chinese: "邻居", phonetic: "/ˈneɪbər/", example: "My neighbor is friendly.", tags: ["人物"] },
+    { english: "classmate", chinese: "同学", phonetic: "/ˈklæsmeɪt/", example: "He is my classmate.", tags: ["人物"] },
+    { english: "king", chinese: "国王", phonetic: "/kɪŋ/", example: "The king is wise.", tags: ["人物"] },
+    { english: "queen", chinese: "王后", phonetic: "/kwiːn/", example: "The queen is beautiful.", tags: ["人物"] },
+    { english: "prince", chinese: "王子", phonetic: "/prɪns/", example: "The prince is young.", tags: ["人物"] },
+    { english: "princess", chinese: "公主", phonetic: "/ˌprɪnˈses/", example: "The princess is kind.", tags: ["人物"] },
+    { english: "parent", chinese: "父母", phonetic: "/ˈpeərənt/", example: "My parent helps me.", tags: ["人物"] },
+    { english: "son", chinese: "儿子", phonetic: "/sʌn/", example: "He is my son.", tags: ["人物"] },
+    { english: "daughter", chinese: "女儿", phonetic: "/ˈdɔːtər/", example: "She is my daughter.", tags: ["人物"] },
+    { english: "husband", chinese: "丈夫", phonetic: "/ˈhʌzbənd/", example: "Her husband is tall.", tags: ["人物"] },
+    { english: "wife", chinese: "妻子", phonetic: "/waɪf/", example: "His wife is kind.", tags: ["人物"] },
     { english: "home", chinese: "家", phonetic: "/hoʊm/", example: "I want to go home.", tags: ["地点"] },
     { english: "park", chinese: "公园", phonetic: "/pɑːrk/", example: "Let us go to the park.", tags: ["地点"] },
     { english: "shop", chinese: "商店", phonetic: "/ʃɒp/", example: "I go to the shop.", tags: ["地点"] },
-    
-    // 其他常用词
+    { english: "school", chinese: "学校", phonetic: "/skuːl/", example: "I go to school.", tags: ["地点"] },
+    { english: "hospital", chinese: "医院", phonetic: "/ˈhɒspɪtl/", example: "Go to the hospital.", tags: ["地点"] },
+    { english: "zoo", chinese: "动物园", phonetic: "/zuː/", example: "I go to the zoo.", tags: ["地点"] },
+    { english: "library", chinese: "图书馆", phonetic: "/ˈlaɪbreri/", example: "Read in the library.", tags: ["地点"] },
+    { english: "cinema", chinese: "电影院", phonetic: "/ˈsɪnəmə/", example: "Go to the cinema.", tags: ["地点"] },
+    { english: "museum", chinese: "博物馆", phonetic: "/mjuˈziːəm/", example: "Visit the museum.", tags: ["地点"] },
+    { english: "church", chinese: "教堂", phonetic: "/tʃɜːrtʃ/", example: "The church is old.", tags: ["地点"] },
+    { english: "market", chinese: "市场", phonetic: "/ˈmɑːrkɪt/", example: "Buy food at the market.", tags: ["地点"] },
+    { english: "garden", chinese: "花园", phonetic: "/ˈɡɑːrdn/", example: "Flowers in the garden.", tags: ["地点"] },
+    { english: "kitchen", chinese: "厨房", phonetic: "/ˈkɪtʃɪn/", example: "Mom is in the kitchen.", tags: ["地点"] },
+    { english: "street", chinese: "街道", phonetic: "/striːt/", example: "Walk on the street.", tags: ["地点"] },
+    { english: "city", chinese: "城市", phonetic: "/ˈsɪti/", example: "The city is big.", tags: ["地点"] },
+    { english: "country", chinese: "国家", phonetic: "/ˈkʌntri/", example: "My country is China.", tags: ["地点"] },
+    { english: "store", chinese: "商店", phonetic: "/stɔːr/", example: "Go to the store.", tags: ["地点"] },
+    { english: "tower", chinese: "塔", phonetic: "/ˈtaʊər/", example: "The tower is tall.", tags: ["地点"] },
+    { english: "bridge", chinese: "桥", phonetic: "/brɪdʒ/", example: "Cross the bridge.", tags: ["地点"] },
+    { english: "village", chinese: "村庄", phonetic: "/ˈvɪlɪdʒ/", example: "The village is small.", tags: ["地点"] },
+    { english: "restaurant", chinese: "餐厅", phonetic: "/ˈrestrɒnt/", example: "Eat at the restaurant.", tags: ["地点"] },
+    { english: "hotel", chinese: "酒店", phonetic: "/hoʊˈtel/", example: "Stay at the hotel.", tags: ["地点"] },
+    { english: "bank", chinese: "银行", phonetic: "/bæŋk/", example: "Go to the bank.", tags: ["地点"] },
+    { english: "airport", chinese: "机场", phonetic: "/ˈeərpɔːrt/", example: "Go to the airport.", tags: ["地点"] },
+    { english: "station", chinese: "车站", phonetic: "/ˈsteɪʃn/", example: "The bus station.", tags: ["地点"] },
+    { english: "car", chinese: "汽车", phonetic: "/kɑːr/", example: "The car is red.", tags: ["交通"] },
+    { english: "bus", chinese: "公共汽车", phonetic: "/bʌs/", example: "I take the bus to school.", tags: ["交通"] },
+    { english: "bike", chinese: "自行车", phonetic: "/baɪk/", example: "I ride a bike.", tags: ["交通"] },
+    { english: "train", chinese: "火车", phonetic: "/treɪn/", example: "The train is fast.", tags: ["交通"] },
+    { english: "plane", chinese: "飞机", phonetic: "/pleɪn/", example: "The plane flies high.", tags: ["交通"] },
+    { english: "boat", chinese: "船", phonetic: "/boʊt/", example: "The boat is on the water.", tags: ["交通"] },
+    { english: "subway", chinese: "地铁", phonetic: "/ˈsʌbweɪ/", example: "Take the subway.", tags: ["交通"] },
+    { english: "taxi", chinese: "出租车", phonetic: "/ˈtæksi/", example: "Take a taxi.", tags: ["交通"] },
+    { english: "truck", chinese: "卡车", phonetic: "/trʌk/", example: "The truck is big.", tags: ["交通"] },
+    { english: "ship", chinese: "轮船", phonetic: "/ʃɪp/", example: "The ship sails.", tags: ["交通"] },
+    { english: "book", chinese: "书", phonetic: "/bʊk/", example: "I read a book.", tags: ["学校"] },
+    { english: "pencil", chinese: "铅笔", phonetic: "/ˈpensl/", example: "Write with a pencil.", tags: ["学校"] },
+    { english: "homework", chinese: "作业", phonetic: "/ˈhoʊmwɜːrk/", example: "Finish your homework.", tags: ["学校"] },
+    { english: "test", chinese: "考试", phonetic: "/test/", example: "The test is hard.", tags: ["学校"] },
+    { english: "lesson", chinese: "课", phonetic: "/ˈlesn/", example: "The lesson is fun.", tags: ["学校"] },
+    { english: "classroom", chinese: "教室", phonetic: "/ˈklæsruːm/", example: "Go to the classroom.", tags: ["学校"] },
+    { english: "eraser", chinese: "橡皮", phonetic: "/ɪˈreɪsər/", example: "Use the eraser.", tags: ["学校"] },
+    { english: "ruler", chinese: "尺子", phonetic: "/ˈruːlər/", example: "Measure with a ruler.", tags: ["学校"] },
+    { english: "ball", chinese: "球", phonetic: "/bɔːl/", example: "Kick the ball!", tags: ["运动"] },
+    { english: "football", chinese: "足球", phonetic: "/ˈfʊtbɔːl/", example: "I play football.", tags: ["运动"] },
+    { english: "basketball", chinese: "篮球", phonetic: "/ˈbæskɪtbɔːl/", example: "I like basketball.", tags: ["运动"] },
     { english: "yes", chinese: "是", phonetic: "/jes/", example: "Yes, I understand.", tags: ["常用"] },
     { english: "no", chinese: "不", phonetic: "/noʊ/", example: "No, thank you.", tags: ["常用"] },
-    { english: "what", chinese: "什么", phonetic: "/wɒt/", example: "What is your name?", tags: ["常用"] },
-    { english: "who", chinese: "谁", phonetic: "/huː/", example: "Who is he?", tags: ["常用"] },
-    { english: "where", chinese: "哪里", phonetic: "/weər/", example: "Where are you?", tags: ["常用"] },
     { english: "this", chinese: "这个", phonetic: "/ðɪs/", example: "This is my book.", tags: ["常用"] },
     { english: "that", chinese: "那个", phonetic: "/ðæt/", example: "That is a cat.", tags: ["常用"] },
     { english: "and", chinese: "和", phonetic: "/ænd/", example: "Tom and Jerry.", tags: ["常用"] },
     { english: "or", chinese: "或者", phonetic: "/ɔːr/", example: "Apple or banana?", tags: ["常用"] },
     { english: "not", chinese: "不", phonetic: "/nɒt/", example: "I am not tired.", tags: ["常用"] },
     { english: "very", chinese: "非常", phonetic: "/ˈveri/", example: "Very good!", tags: ["常用"] },
-    { english: "new", chinese: "新的", phonetic: "/njuː/", example: "I have a new bag.", tags: ["形容词"] },
-    { english: "old", chinese: "旧的/老的", phonetic: "/oʊld/", example: "This is an old book.", tags: ["形容词"] },
-    { english: "little", chinese: "小的", phonetic: "/ˈlɪtl/", example: "A little dog.", tags: ["形容词"] },
-    { english: "long", chinese: "长的", phonetic: "/lɒŋ/", example: "The snake is long.", tags: ["形容词"] },
-    { english: "short", chinese: "短的", phonetic: "/ʃɔːrt/", example: "The pencil is short.", tags: ["形容词"] },
+    { english: "name", chinese: "名字", phonetic: "/neɪm/", example: "What is your name?", tags: ["常用"] },
+    { english: "age", chinese: "年龄", phonetic: "/eɪdʒ/", example: "What is your age?", tags: ["常用"] },
+    { english: "picture", chinese: "图画", phonetic: "/ˈpɪktʃər/", example: "Draw a picture.", tags: ["常用"] },
+    { english: "color", chinese: "颜色", phonetic: "/ˈkʌlər/", example: "What color is it?", tags: ["常用"] },
+    { english: "number", chinese: "数字", phonetic: "/ˈnʌmbər/", example: "What number is this?", tags: ["常用"] },
+    { english: "game", chinese: "游戏", phonetic: "/ɡeɪm/", example: "Let us play a game.", tags: ["常用"] },
+    { english: "story", chinese: "故事", phonetic: "/ˈstɔːri/", example: "Tell me a story.", tags: ["常用"] },
+    { english: "song", chinese: "歌", phonetic: "/sɒŋ/", example: "Sing a song.", tags: ["常用"] },
+    { english: "money", chinese: "钱", phonetic: "/ˈmʌni/", example: "I have no money.", tags: ["常用"] },
+    { english: "word", chinese: "单词", phonetic: "/wɜːrd/", example: "Learn a new word.", tags: ["常用"] },
+    { english: "thing", chinese: "东西", phonetic: "/θɪŋ/", example: "What is that thing?", tags: ["常用"] },
+    { english: "place", chinese: "地方", phonetic: "/pleɪs/", example: "This is a nice place.", tags: ["常用"] },
+    { english: "dream", chinese: "梦想", phonetic: "/driːm/", example: "I have a dream.", tags: ["常用"] },
+    { english: "wish", chinese: "愿望", phonetic: "/wɪʃ/", example: "Make a wish.", tags: ["常用"] },
+    { english: "hope", chinese: "希望", phonetic: "/hoʊp/", example: "I hope so.", tags: ["常用"] },
+    { english: "life", chinese: "生活", phonetic: "/laɪf/", example: "Life is beautiful.", tags: ["常用"] },
+    { english: "letter", chinese: "信", phonetic: "/ˈletər/", example: "Write a letter.", tags: ["常用"] },
+    { english: "answer", chinese: "答案", phonetic: "/ˈænsər/", example: "The answer is correct.", tags: ["常用"] },
+    { english: "question", chinese: "问题", phonetic: "/ˈkwestʃən/", example: "Ask a question.", tags: ["常用"] },
+    { english: "idea", chinese: "主意", phonetic: "/aɪˈdiə/", example: "Good idea!", tags: ["常用"] },
+    { english: "way", chinese: "路", phonetic: "/weɪ/", example: "This way, please.", tags: ["常用"] },
+    { english: "side", chinese: "边", phonetic: "/saɪd/", example: "On this side.", tags: ["常用"] },
+    { english: "end", chinese: "结束", phonetic: "/end/", example: "The end.", tags: ["常用"] },
+    { english: "rest", chinese: "休息", phonetic: "/rest/", example: "Take a rest.", tags: ["常用"] },
+    { english: "surprise", chinese: "惊喜", phonetic: "/sərˈpraɪz/", example: "What a surprise!", tags: ["常用"] },
+    { english: "holiday", chinese: "假期", phonetic: "/ˈhɒlədeɪ/", example: "Happy holiday!", tags: ["常用"] },
+    { english: "movie", chinese: "电影", phonetic: "/ˈmuːvi/", example: "Watch a movie.", tags: ["常用"] },
+    { english: "sport", chinese: "运动", phonetic: "/spɔːrt/", example: "I like sport.", tags: ["常用"] },
+    { english: "weather", chinese: "天气", phonetic: "/ˈweðər/", example: "How is the weather?", tags: ["常用"] },
 ];
 
 var PHRASES_DATA = [{"english":"How are you?","chinese":"你好吗？","category":"问候","example":"Hi Tom, how are you?"},{"english":"I am fine.","chinese":"我很好。","category":"问候","example":"I am fine, thank you."},{"english":"Nice to meet you.","chinese":"很高兴认识你。","category":"问候","example":"Hello! Nice to meet you."},{"english":"See you later.","chinese":"回头见。","category":"问候","example":"Bye! See you later."},{"english":"Good morning!","chinese":"早上好！","category":"问候","example":"Good morning, teacher!"},{"english":"Good night!","chinese":"晚安！","category":"问候","example":"Good night, Mom."},{"english":"Thank you very much.","chinese":"非常感谢。","category":"感谢","example":"Thank you very much for your help."},{"english":"You are welcome.","chinese":"不客气。","category":"感谢","example":"You are welcome!"},{"english":"I am sorry.","chinese":"对不起。","category":"道歉","example":"I am sorry for being late."},{"english":"It does not matter.","chinese":"没关系。","category":"道歉","example":"It does not matter."},{"english":"Excuse me.","chinese":"打扰一下。","category":"礼貌","example":"Excuse me, where is the park?"},{"english":"No problem.","chinese":"没问题。","category":"礼貌","example":"Can you help me? No problem."},{"english":"I do not understand.","chinese":"我不明白。","category":"学习","example":"I do not understand this word."},{"english":"Can you help me?","chinese":"你能帮我吗？","category":"求助","example":"Can you help me with this?"},{"english":"How much is it?","chinese":"多少钱？","category":"购物","example":"How much is this book?"},{"english":"It is too expensive.","chinese":"太贵了。","category":"购物","example":"It is too expensive for me."},{"english":"Where is the bathroom?","chinese":"洗手间在哪里？","category":"问路","example":"Where is the bathroom?"},{"english":"Turn left.","chinese":"左转。","category":"问路","example":"Turn left at the corner."},{"english":"Turn right.","chinese":"右转。","category":"问路","example":"Turn right here."},{"english":"Go straight.","chinese":"直走。","category":"问路","example":"Go straight for two blocks."},{"english":"I like it very much.","chinese":"我非常喜欢。","category":"表达","example":"I like it very much!"},{"english":"I am hungry.","chinese":"我饿了。","category":"日常","example":"I am hungry. Let us eat."},{"english":"I am thirsty.","chinese":"我渴了。","category":"日常","example":"I am thirsty. I need water."},{"english":"I am tired.","chinese":"我累了。","category":"日常","example":"I am tired. Let us rest."},{"english":"Let us go!","chinese":"我们走吧！","category":"日常","example":"It is late. Let us go!"},{"english":"Wait a moment.","chinese":"等一下。","category":"日常","example":"Wait a moment, please."},{"english":"Hurry up!","chinese":"快点！","category":"日常","example":"Hurry up! We are late!"},{"english":"What time is it?","chinese":"几点了？","category":"日常","example":"What time is it now?"},{"english":"Happy birthday!","chinese":"生日快乐！","category":"祝福","example":"Happy birthday to you!"},{"english":"Merry Christmas!","chinese":"圣诞快乐！","category":"祝福","example":"Merry Christmas!"},{"english":"Happy New Year!","chinese":"新年快乐！","category":"祝福","example":"Happy New Year!"},{"english":"Congratulations!","chinese":"恭喜！","category":"祝福","example":"Congratulations! You did it!"},{"english":"Good luck!","chinese":"祝你好运！","category":"祝福","example":"Good luck on your test!"},{"english":"I love you.","chinese":"我爱你。","category":"情感","example":"I love you, Mom."},{"english":"I miss you.","chinese":"我想你。","category":"情感","example":"I miss you so much."},{"english":"You are so kind.","chinese":"你真好。","category":"情感","example":"You are so kind to me."},{"english":"Of course!","chinese":"当然！","category":"观点","example":"Can I come? Of course!"},{"english":"I have no idea.","chinese":"我不知道。","category":"观点","example":"Where is he? I have no idea."},{"english":"Take care!","chinese":"保重！","category":"告别","example":"Goodbye! Take care!"},{"english":"Have a nice day!","chinese":"祝你愉快！","category":"告别","example":"Bye! Have a nice day!"},{"english":"See you tomorrow.","chinese":"明天见。","category":"告别","example":"See you tomorrow."},{"english":"Keep going!","chinese":"继续加油！","category":"鼓励","example":"Keep going! You can do it!"},{"english":"Never give up.","chinese":"永不放弃。","category":"鼓励","example":"Never give up your dream."},{"english":"Well done!","chinese":"做得好！","category":"鼓励","example":"Well done! You got it right!"}];
@@ -1182,639 +1559,6 @@ const SpacedRepetitionEngine = {
     // 获取掌握度颜色
     masteryColor(level) {
         const colors = ['#999', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db'];
-        return colors[level] || '#999';
-    }
-};
-</script>
-<script>﻿// WordPilot - 主应用逻辑
-
-class WordPilotApp {
-    constructor() {
-        this.words = [];
-        this.sessions = [];
-        this.currentTab = 'home';
-        this.studyWords = [];
-        this.studyIndex = 0;
-        this.showAnswer = false;
-        this.correctCount = 0;
-        this.startTime = null;
-        this.searchText = '';
-        this.selectedTag = null;
-        
-        this.init();
-    }
-    
-    init() {
-        this.loadData();
-        this.setupEventListeners();
-        this.render();
-        this.updateGreeting();
-    }
-    
-    loadData() {
-        const savedWords = localStorage.getItem('wordpilot_words');
-        const savedSessions = localStorage.getItem('wordpilot_sessions');
-        
-        if (savedWords) {
-            this.words = JSON.parse(savedWords);
-        } else {
-            this.words = BEGINNER_WORDS.map((w, i) => ({
-                id: i,
-                ...w,
-                masteryLevel: 0,
-                correctCount: 0,
-                wrongCount: 0,
-                lastReviewed: null,
-                nextReview: Date.now()
-            }));
-            this.saveWords();
-        }
-        
-        this.sessions = savedSessions ? JSON.parse(savedSessions) : [];
-    }
-    
-    saveWords() {
-        localStorage.setItem('wordpilot_words', JSON.stringify(this.words));
-    }
-    
-    saveSessions() {
-        localStorage.setItem('wordpilot_sessions', JSON.stringify(this.sessions));
-    }
-    
-    setupEventListeners() {
-        document.querySelectorAll('.tab-item').forEach(tab => {
-            tab.addEventListener('click', () => {
-                this.currentTab = tab.dataset.tab;
-                this.render();
-            });
-        });
-    }
-    
-    render() {
-        document.querySelectorAll('.tab-item').forEach(tab => {
-            tab.classList.toggle('active', tab.dataset.tab === this.currentTab);
-        });
-        document.querySelectorAll('.page').forEach(page => {
-            page.classList.toggle('active', page.id === 'page-' + this.currentTab);
-        });
-        
-        switch(this.currentTab) {
-            case 'home': this.renderHome(); break;
-            case 'words': this.renderWords(); break;
-            case 'profile': this.renderProfile(); break;
-        }
-    }
-    
-    renderHome() {
-        document.getElementById('streak-days').textContent = this.calculateStreak();
-        this.renderWeekCalendar();
-        
-        const todayReviewed = this.sessions.filter(s => this.isToday(s.date)).reduce((sum, s) => sum + s.wordsReviewed, 0);
-        const dueWords = SpacedRepetitionEngine.getDueWords(this.words, 100);
-        
-        document.getElementById('today-reviewed').textContent = todayReviewed;
-        document.getElementById('due-count').textContent = dueWords.length;
-        document.getElementById('total-words').textContent = this.words.length;
-    }
-    
-    renderWeekCalendar() {
-        const calendar = document.getElementById('week-calendar');
-        calendar.innerHTML = '';
-        const days = ['日', '一', '二', '三', '四', '五', '六'];
-        
-        for (let i = 6; i >= 0; i--) {
-            const date = new Date();
-            date.setDate(date.getDate() - i);
-            const studied = this.hasStudiedOn(date);
-            
-            const dayEl = document.createElement('div');
-            dayEl.className = 'day-item';
-            dayEl.innerHTML = '<span>' + days[date.getDay()] + '</span><div class="day-circle ' + (studied ? 'studied' : '') + '">' + (studied ? '✓' : '') + '</div>';
-            calendar.appendChild(dayEl);
-        }
-    }
-    
-    startStudy() {
-        this.studyWords = SpacedRepetitionEngine.getDueWords(this.words, 10);
-        this.studyIndex = 0;
-        this.showAnswer = false;
-        this.correctCount = 0;
-        this.startTime = Date.now();
-        
-        if (this.studyWords.length === 0) {
-            this.showEmptyState();
-            return;
-        }
-        
-        this.showStudyView();
-    }
-    
-    showStudyView() {
-        document.getElementById('page-home').classList.remove('active');
-        document.getElementById('study-view').classList.add('active');
-        this.renderStudyCard();
-    }
-    
-    showEmptyState() {
-        document.getElementById('page-home').classList.remove('active');
-        document.getElementById('empty-view').classList.add('active');
-    }
-    
-    renderStudyCard() {
-        const word = this.studyWords[this.studyIndex];
-        
-        document.getElementById('study-progress').textContent = '进度: ' + (this.studyIndex + 1) + '/' + this.studyWords.length;
-        document.getElementById('study-stats').textContent = '正确: ' + this.correctCount + ' 错误: ' + (this.studyIndex - this.correctCount);
-        document.getElementById('progress-fill').style.width = ((this.studyIndex + 1) / this.studyWords.length * 100) + '%';
-        
-        document.getElementById('card-english').textContent = word.english;
-        document.getElementById('card-phonetic').textContent = word.phonetic;
-        
-        const answerSection = document.getElementById('answer-section');
-        const btnShowAnswer = document.getElementById('btn-show-answer');
-        const actionButtons = document.getElementById('action-buttons');
-        
-        if (this.showAnswer) {
-            answerSection.classList.remove('hidden');
-            btnShowAnswer.classList.add('hidden');
-            actionButtons.classList.remove('hidden');
-            document.getElementById('card-chinese').textContent = word.chinese;
-            document.getElementById('card-example').textContent = word.example;
-            document.getElementById('card-mastery').textContent = SpacedRepetitionEngine.masteryDescription(word.masteryLevel);
-            document.getElementById('card-mastery').style.background = SpacedRepetitionEngine.masteryColor(word.masteryLevel);
-        } else {
-            answerSection.classList.add('hidden');
-            btnShowAnswer.classList.remove('hidden');
-            actionButtons.classList.add('hidden');
-        }
-    }
-    
-    showAnswerClick() {
-        this.showAnswer = true;
-        this.renderStudyCard();
-    }
-    
-    speakWord() {
-        const word = this.studyWords[this.studyIndex];
-        if ('speechSynthesis' in window) {
-            speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(word.english);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.8;
-            speechSynthesis.speak(utterance);
-        }
-    }
-    
-    recordAnswer(correct) {
-        const word = this.studyWords[this.studyIndex];
-        const wordIndex = this.words.findIndex(w => w.id === word.id);
-        
-        if (wordIndex !== -1) {
-            SpacedRepetitionEngine.updateWord(this.words[wordIndex], correct ? 4 : 1);
-            this.saveWords();
-        }
-        
-        if (correct) this.correctCount++;
-        
-        if (this.studyIndex < this.studyWords.length - 1) {
-            this.studyIndex++;
-            this.showAnswer = false;
-            this.renderStudyCard();
-        } else {
-            this.completeStudy();
-        }
-    }
-    
-    completeStudy() {
-        const session = {
-            date: Date.now(),
-            wordsReviewed: this.studyWords.length,
-            correctAnswers: this.correctCount,
-            totalTimeSeconds: Math.floor((Date.now() - this.startTime) / 1000)
-        };
-        this.sessions.push(session);
-        this.saveSessions();
-        
-        document.getElementById('study-view').classList.remove('active');
-        document.getElementById('complete-view').classList.add('active');
-        
-        const accuracy = Math.round((this.correctCount / this.studyWords.length) * 100);
-        document.getElementById('complete-total').textContent = this.studyWords.length;
-        document.getElementById('complete-correct').textContent = this.correctCount;
-        document.getElementById('complete-accuracy').textContent = accuracy + '%';
-        
-        let msg = '';
-        if (accuracy >= 90) msg = '太厉害了！你已经掌握得很好了！继续保持！';
-        else if (accuracy >= 70) msg = '做得不错！再复习几次就能完全掌握了！';
-        else if (accuracy >= 50) msg = '继续努力！每天学习一点点，你会越来越好的！';
-        else msg = '别灰心！学习就是一个不断重复的过程，明天再来复习吧！';
-        document.getElementById('encouragement').textContent = msg;
-    }
-    
-    backToHome() {
-        document.getElementById('study-view').classList.remove('active');
-        document.getElementById('empty-view').classList.remove('active');
-        document.getElementById('complete-view').classList.remove('active');
-        document.getElementById('page-home').classList.add('active');
-        this.render();
-    }
-    
-    renderWords() {
-        this.renderTagFilter();
-        this.renderWordList();
-    }
-    
-    renderTagFilter() {
-        const container = document.getElementById('tag-filter');
-        const tags = [...new Set(this.words.flatMap(w => w.tags))].sort();
-        
-        container.innerHTML = '<button class="tag-btn ' + (!this.selectedTag ? 'active' : '') + '" onclick="app.filterTag(null)">全部</button>' +
-            tags.map(tag => '<button class="tag-btn ' + (this.selectedTag === tag ? 'active' : '') + '" onclick="app.filterTag(\'' + tag + '\')">' + tag + '</button>').join('');
-    }
-    
-    renderWordList() {
-        const container = document.getElementById('word-list');
-        let filtered = this.words;
-        
-        if (this.searchText) {
-            const text = this.searchText.toLowerCase();
-            filtered = filtered.filter(w => w.english.toLowerCase().includes(text) || w.chinese.includes(text));
-        }
-        
-        if (this.selectedTag) {
-            filtered = filtered.filter(w => w.tags.includes(this.selectedTag));
-        }
-        
-        container.innerHTML = filtered.map(word => 
-            '<li class="word-item"><div class="word-info"><h3>' + word.english + ' <span style="font-size:12px;color:#999;font-weight:normal">' + word.phonetic + '</span></h3><p>' + word.chinese + '</p></div><div class="word-actions"><div class="mastery-dot" style="background:' + SpacedRepetitionEngine.masteryColor(word.masteryLevel) + '"></div><button class="btn-icon" onclick="app.speakWordFromList(\'' + word.english + '\')"><i class="fas fa-volume-up"></i></button></div></li>'
-        ).join('');
-    }
-    
-    filterTag(tag) {
-        this.selectedTag = tag;
-        this.renderWords();
-    }
-    
-    searchWords(text) {
-        this.searchText = text;
-        this.renderWordList();
-    }
-    
-    speakWordFromList(word) {
-        if ('speechSynthesis' in window) {
-            speechSynthesis.cancel();
-            const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'en-US';
-            utterance.rate = 0.8;
-            speechSynthesis.speak(utterance);
-        }
-    }
-    
-    renderProfile() {
-        const mastered = this.words.filter(w => w.masteryLevel >= 4).length;
-        const learning = this.words.filter(w => w.masteryLevel >= 1 && w.masteryLevel < 4).length;
-        const newWords = this.words.filter(w => w.masteryLevel === 0).length;
-        const totalReviewed = this.sessions.reduce((sum, s) => sum + s.wordsReviewed, 0);
-        const avgAccuracy = this.sessions.length > 0 
-            ? Math.round(this.sessions.reduce((sum, s) => sum + (s.correctAnswers / s.wordsReviewed), 0) / this.sessions.length * 100)
-            : 0;
-        const totalTime = this.sessions.reduce((sum, s) => sum + s.totalTimeSeconds, 0);
-        
-        document.getElementById('stat-total-words').textContent = this.words.length;
-        document.getElementById('stat-mastered').textContent = mastered;
-        document.getElementById('stat-learning').textContent = learning;
-        document.getElementById('stat-new').textContent = newWords;
-        document.getElementById('stat-total-reviewed').textContent = totalReviewed;
-        document.getElementById('stat-avg-accuracy').textContent = avgAccuracy + '%';
-        document.getElementById('stat-total-time').textContent = this.formatTime(totalTime);
-        document.getElementById('stat-sessions').textContent = this.sessions.length;
-        
-        this.renderMasteryBars();
-        this.renderRecentSessions();
-    }
-    
-    renderMasteryBars() {
-        const container = document.getElementById('mastery-bars');
-        const levels = ['新词', '初识', '眼熟', '认识', '熟悉', '精通'];
-        const colors = ['#999', '#e74c3c', '#e67e22', '#f1c40f', '#2ecc71', '#3498db',
-    
-    {english:"breakfast",chinese:"早餐",phonetic:"/ˈbrekfəst/",example:"I eat breakfast at 7.",tags:["食物"]},
-    {english:"lunch",chinese:"午餐",phonetic:"/lʌntʃ/",example:"Let us have lunch.",tags:["食物"]},
-    {english:"dinner",chinese:"晚餐",phonetic:"/ˈdɪnər/",example:"Dinner is ready.",tags:["食物"]},
-    {english:"cake",chinese:"蛋糕",phonetic:"/keɪk/",example:"I like chocolate cake.",tags:["食物"]},
-    {english:"egg",chinese:"鸡蛋",phonetic:"/eɡ/",example:"I want an egg.",tags:["食物"]},
-    {english:"banana",chinese:"香蕉",phonetic:"/bəˈnænə/",example:"The banana is yellow.",tags:["食物"]},
-    {english:"orange",chinese:"橙子",phonetic:"/ˈɒrɪndʒ/",example:"I drink orange juice.",tags:["食物"]},
-    {english:"sugar",chinese:"糖",phonetic:"/ˈʃʊɡər/",example:"Do you want sugar?",tags:["食物"]},
-    {english:"chair",chinese:"椅子",phonetic:"/tʃeər/",example:"Sit on the chair.",tags:["家具"]},
-    {english:"table",chinese:"桌子",phonetic:"/ˈteɪbl/",example:"The book is on the table.",tags:["家具"]},
-    {english:"door",chinese:"门",phonetic:"/dɔːr/",example:"Please close the door.",tags:["家具"]},
-    {english:"window",chinese:"窗户",phonetic:"/ˈwɪndoʊ/",example:"Open the window.",tags:["家具"]},
-    {english:"bed",chinese:"床",phonetic:"/bed/",example:"I sleep in my bed.",tags:["家具"]},
-    {english:"clock",chinese:"钟",phonetic:"/klɒk/",example:"Look at the clock.",tags:["物品"]},
-    {english:"key",chinese:"钥匙",phonetic:"/kiː/",example:"Where is my key?",tags:["物品"]},
-    {english:"bag",chinese:"包",phonetic:"/bæɡ/",example:"I carry my bag.",tags:["物品"]},
-    {english:"ball",chinese:"球",phonetic:"/bɔːl/",example:"Kick the ball!",tags:["物品"]},
-    {english:"phone",chinese:"电话",phonetic:"/foʊn/",example:"Answer the phone.",tags:["物品"]},
-    {english:"cup",chinese:"杯子",phonetic:"/kʌp/",example:"A cup of tea, please.",tags:["物品"]},
-    {english:"flower",chinese:"花",phonetic:"/ˈflaʊər/",example:"The flower is beautiful.",tags:["自然"]},
-    {english:"tree",chinese:"树",phonetic:"/triː/",example:"The tree is tall.",tags:["自然"]},
-    {english:"grass",chinese:"草",phonetic:"/ɡræs/",example:"Do not walk on the grass.",tags:["自然"]},
-    {english:"sky",chinese:"天空",phonetic:"/skaɪ/",example:"The sky is blue.",tags:["自然"]},
-    {english:"moon",chinese:"月亮",phonetic:"/muːn/",example:"The moon is bright.",tags:["自然"]},
-    {english:"star",chinese:"星星",phonetic:"/stɑːr/",example:"I see a star.",tags:["自然"]},
-    {english:"snow",chinese:"雪",phonetic:"/snoʊ/",example:"It snows in winter.",tags:["天气"]},
-    {english:"wind",chinese:"风",phonetic:"/wɪnd/",example:"The wind is strong.",tags:["天气"]},
-    {english:"spring",chinese:"春天",phonetic:"/sprɪŋ/",example:"Flowers bloom in spring.",tags:["时间"]},
-    {english:"summer",chinese:"夏天",phonetic:"/ˈsʌmər/",example:"Summer is hot.",tags:["时间"]},
-    {english:"autumn",chinese:"秋天",phonetic:"/ˈɔːtəm/",example:"Leaves fall in autumn.",tags:["时间"]},
-    {english:"winter",chinese:"冬天",phonetic:"/ˈwɪntər/",example:"Winter is cold.",tags:["时间"]},
-    {english:"Sunday",chinese:"星期日",phonetic:"/ˈsʌndeɪ/",example:"I rest on Sunday.",tags:["时间"]},
-    {english:"Monday",chinese:"星期一",phonetic:"/ˈmʌndeɪ/",example:"Monday is the first day.",tags:["时间"]},
-    {english:"January",chinese:"一月",phonetic:"/ˈdʒænjueri/",example:"January is the first month.",tags:["时间"]},
-    {english:"birthday",chinese:"生日",phonetic:"/ˈbɜːrθdeɪ/",example:"Happy birthday!",tags:["时间"]},
-    {english:"sing",chinese:"唱歌",phonetic:"/sɪŋ/",example:"I like to sing.",tags:["动词"]},
-    {english:"dance",chinese:"跳舞",phonetic:"/dæns/",example:"She can dance well.",tags:["动词"]},
-    {english:"swim",chinese:"游泳",phonetic:"/swɪm/",example:"I can swim.",tags:["动词"]},
-    {english:"draw",chinese:"画画",phonetic:"/drɔː/",example:"I draw a picture.",tags:["动词"]},
-    {english:"read",chinese:"读",phonetic:"/riːd/",example:"I read a story.",tags:["动词"]},
-    {english:"write",chinese:"写",phonetic:"/raɪt/",example:"Write your name.",tags:["动词"]},
-    {english:"play",chinese:"玩",phonetic:"/pleɪ/",example:"Let us play together.",tags:["动词"]},
-    {english:"sleep",chinese:"睡觉",phonetic:"/sliːp/",example:"I sleep at nine.",tags:["动词"]},
-    {english:"wake",chinese:"醒来",phonetic:"/weɪk/",example:"I wake up early.",tags:["动词"]},
-    {english:"cook",chinese:"做饭",phonetic:"/kʊk/",example:"Mom cooks dinner.",tags:["动词"]},
-    {english:"wash",chinese:"洗",phonetic:"/wɒʃ/",example:"Wash your hands.",tags:["动词"]},
-    {english:"clean",chinese:"打扫",phonetic:"/kliːn/",example:"Clean your room.",tags:["动词"]},
-    {english:"help",chinese:"帮助",phonetic:"/help/",example:"Can you help me?",tags:["动词"]},
-    {english:"open",chinese:"打开",phonetic:"/ˈoʊpən/",example:"Open your book.",tags:["动词"]},
-    {english:"close",chinese:"关闭",phonetic:"/kloʊz/",example:"Close the window.",tags:["动词"]},
-    {english:"give",chinese:"给",phonetic:"/ɡɪv/",example:"Give me the pen.",tags:["动词"]},
-    {english:"take",chinese:"拿",phonetic:"/teɪk/",example:"Take this apple.",tags:["动词"]},
-    {english:"put",chinese:"放",phonetic:"/pʊt/",example:"Put it on the table.",tags:["动词"]},
-    {english:"find",chinese:"找到",phonetic:"/faɪnd/",example:"I find my key.",tags:["动词"]},
-    {english:"stop",chinese:"停止",phonetic:"/stɒp/",example:"Stop talking.",tags:["动词"]},
-    {english:"wait",chinese:"等待",phonetic:"/weɪt/",example:"Wait for me.",tags:["动词"]},
-    {english:"try",chinese:"尝试",phonetic:"/traɪ/",example:"Try again!",tags:["动词"]},
-    {english:"tall",chinese:"高的",phonetic:"/tɔːl/",example:"My father is tall.",tags:["形容词"]},
-    {english:"short",chinese:"矮的",phonetic:"/ʃɔːrt/",example:"The boy is short.",tags:["形容词"]},
-    {english:"fast",chinese:"快的",phonetic:"/fæst/",example:"The car is fast.",tags:["形容词"]},
-    {english:"slow",chinese:"慢的",phonetic:"/sloʊ/",example:"The turtle is slow.",tags:["形容词"]},
-    {english:"strong",chinese:"强壮的",phonetic:"/strɒŋ/",example:"He is very strong.",tags:["形容词"]},
-    {english:"young",chinese:"年轻的",phonetic:"/jʌŋ/",example:"She is young.",tags:["形容词"]},
-    {english:"pretty",chinese:"漂亮的",phonetic:"/ˈprɪti/",example:"The girl is pretty.",tags:["形容词"]},
-    {english:"clean",chinese:"干净的",phonetic:"/kliːn/",example:"The room is clean.",tags:["形容词"]},
-    {english:"dirty",chinese:"脏的",phonetic:"/ˈdɜːrti/",example:"Your hands are dirty.",tags:["形容词"]},
-    {english:"easy",chinese:"容易的",phonetic:"/ˈiːzi/",example:"This is easy.",tags:["形容词"]},
-    {english:"hard",chinese:"难的",phonetic:"/hɑːrd/",example:"The test is hard.",tags:["形容词"]},
-    {english:"right",chinese:"正确的",phonetic:"/raɪt/",example:"You are right!",tags:["形容词"]},
-    {english:"wrong",chinese:"错误的",phonetic:"/rɒŋ/",example:"The answer is wrong.",tags:["形容词"]},
-    {english:"doctor",chinese:"医生",phonetic:"/ˈdɒktər/",example:"I want to be a doctor.",tags:["职业"]},
-    {english:"nurse",chinese:"护士",phonetic:"/nɜːrs/",example:"The nurse is kind.",tags:["职业"]},
-    {english:"driver",chinese:"司机",phonetic:"/ˈdraɪvər/",example:"My uncle is a driver.",tags:["职业"]},
-    {english:"farmer",chinese:"农民",phonetic:"/ˈfɑːrmər/",example:"The farmer grows rice.",tags:["职业"]},
-    {english:"cook",chinese:"厨师",phonetic:"/kʊk/",example:"The cook makes food.",tags:["职业"]},
-    {english:"friend",chinese:"朋友",phonetic:"/frend/",example:"She is my best friend.",tags:["人物"]},
-    {english:"baby",chinese:"婴儿",phonetic:"/ˈbeɪbi/",example:"The baby is sleeping.",tags:["人物"]},
-    {english:"child",chinese:"孩子",phonetic:"/tʃaɪld/",example:"The child is happy.",tags:["人物"]},
-    {english:"boy",chinese:"男孩",phonetic:"/bɔɪ/",example:"The boy runs fast.",tags:["人物"]},
-    {english:"girl",chinese:"女孩",phonetic:"/ɡɜːrl/",example:"The girl reads a book.",tags:["人物"]},
-    {english:"people",chinese:"人们",phonetic:"/ˈpiːpl/",example:"Many people are here.",tags:["人物"]},
-    {english:"street",chinese:"街道",phonetic:"/striːt/",example:"Walk on the street.",tags:["地点"]},
-    {english:"hospital",chinese:"医院",phonetic:"/ˈhɒspɪtl/",example:"Go to the hospital.",tags:["地点"]},
-    {english:"market",chinese:"市场",phonetic:"/ˈmɑːrkɪt/",example:"Buy food at the market.",tags:["地点"]},
-    {english:"garden",chinese:"花园",phonetic:"/ˈɡɑːrdn/",example:"Flowers in the garden.",tags:["地点"]},
-    {english:"kitchen",chinese:"厨房",phonetic:"/ˈkɪtʃɪn/",example:"Mom is in the kitchen.",tags:["地点"]},
-    {english:"car",chinese:"汽车",phonetic:"/kɑːr/",example:"The car is red.",tags:["交通"]},
-    {english:"bus",chinese:"公共汽车",phonetic:"/bʌs/",example:"I take the bus to school.",tags:["交通"]},
-    {english:"bike",chinese:"自行车",phonetic:"/baɪk/",example:"I ride a bike.",tags:["交通"]},
-    {english:"train",chinese:"火车",phonetic:"/treɪn/",example:"The train is fast.",tags:["交通"]},
-    {english:"plane",chinese:"飞机",phonetic:"/pleɪn/",example:"The plane flies high.",tags:["交通"]},
-    {english:"boat",chinese:"船",phonetic:"/boʊt/",example:"The boat is on the water.",tags:["交通"]},
-    {english:"happy",chinese:"快乐的",phonetic:"/ˈhæpi/",example:"I feel happy today.",tags:["情感"]},
-    {english:"angry",chinese:"生气的",phonetic:"/ˈæŋɡri/",example:"Dad is angry.",tags:["情感"]},
-    {english:"afraid",chinese:"害怕的",phonetic:"/əˈfreɪd/",example:"I am afraid of dogs.",tags:["情感"]},
-    {english:"tired",chinese:"累的",phonetic:"/ˈtaɪərd/",example:"I am so tired.",tags:["情感"]},
-    {english:"hungry",chinese:"饿的",phonetic:"/ˈhʌŋɡri/",example:"I am hungry.",tags:["情感"]},
-    {english:"thirsty",chinese:"渴的",phonetic:"/ˈθɜːrsti/",example:"I am thirsty.",tags:["情感"]},
-    {english:"bored",chinese:"无聊的",phonetic:"/bɔːrd/",example:"I feel bored.",tags:["情感"]},
-    {english:"excited",chinese:"兴奋的",phonetic:"/ɪkˈsaɪtɪd/",example:"I am so excited!",tags:["情感"]}
-
-
-{english:"hand",chinese:"手",phonetic:"/hænd/",example:"Wash your hands.",tags:["身体"]},
-{english:"head",chinese:"头",phonetic:"/hed/",example:"My head hurts.",tags:["身体"]},
-{english:"eye",chinese:"眼睛",phonetic:"/aɪ/",example:"Close your eyes.",tags:["身体"]},
-{english:"ear",chinese:"耳朵",phonetic:"/ɪr/",example:"I hear with my ears.",tags:["身体"]},
-{english:"nose",chinese:"鼻子",phonetic:"/noʊz/",example:"Touch your nose.",tags:["身体"]},
-{english:"mouth",chinese:"嘴巴",phonetic:"/maʊθ/",example:"Open your mouth.",tags:["身体"]},
-{english:"face",chinese:"脸",phonetic:"/feɪs/",example:"Wash your face.",tags:["身体"]},
-{english:"foot",chinese:"脚",phonetic:"/fʊt/",example:"My foot is big.",tags:["身体"]},
-{english:"arm",chinese:"胳膊",phonetic:"/ɑːrm/",example:"Raise your arms.",tags:["身体"]},
-{english:"leg",chinese:"腿",phonetic:"/leɡ/",example:"My leg is tired.",tags:["身体"]},
-{english:"tooth",chinese:"牙齿",phonetic:"/tuːθ/",example:"Brush your teeth.",tags:["身体"]},
-{english:"hair",chinese:"头发",phonetic:"/heər/",example:"Her hair is long.",tags:["身体"]},
-{english:"finger",chinese:"手指",phonetic:"/ˈfɪŋɡər/",example:"I have ten fingers.",tags:["身体"]},
-{english:"back",chinese:"背",phonetic:"/bæk/",example:"My back hurts.",tags:["身体"]},
-{english:"stomach",chinese:"肚子",phonetic:"/ˈstʌmək/",example:"My stomach is full.",tags:["身体"]},
-{english:"bread",chinese:"面包",phonetic:"/bred/",example:"I eat bread.",tags:["食物"]},
-{english:"rice",chinese:"米饭",phonetic:"/raɪs/",example:"I like rice.",tags:["食物"]},
-{english:"noodles",chinese:"面条",phonetic:"/ˈnuːdlz/",example:"I eat noodles.",tags:["食物"]},
-{english:"meat",chinese:"肉",phonetic:"/miːt/",example:"I like meat.",tags:["食物"]},
-{english:"vegetable",chinese:"蔬菜",phonetic:"/ˈvedʒtəbl/",example:"Eat your vegetables.",tags:["食物"]},
-{english:"grape",chinese:"葡萄",phonetic:"/ɡreɪp/",example:"I like grapes.",tags:["食物"]},
-{english:"watermelon",chinese:"西瓜",phonetic:"/ˈwɔːtərmelən/",example:"Watermelon is sweet.",tags:["食物"]},
-{english:"strawberry",chinese:"草莓",phonetic:"/ˈstrɔːberi/",example:"I like strawberries.",tags:["食物"]},
-{english:"milk",chinese:"牛奶",phonetic:"/mɪlk/",example:"Drink your milk.",tags:["食物"]},
-{english:"juice",chinese:"果汁",phonetic:"/dʒuːs/",example:"I want orange juice.",tags:["食物"]},
-{english:"candy",chinese:"糖果",phonetic:"/ˈkændi/",example:"I like candy.",tags:["食物"]},
-{english:"ice cream",chinese:"冰淇淋",phonetic:"/aɪs kriːm/",example:"I love ice cream.",tags:["食物"]},
-{english:"cheese",chinese:"奶酪",phonetic:"/tʃiːz/",example:"I like cheese.",tags:["食物"]},
-{english:"butter",chinese:"黄油",phonetic:"/ˈbʌtər/",example:"Put butter on bread.",tags:["食物"]},
-{english:"soup",chinese:"汤",phonetic:"/suːp/",example:"The soup is hot.",tags:["食物"]},
-{english:"hat",chinese:"帽子",phonetic:"/hæt/",example:"I wear a hat.",tags:["衣服"]},
-{english:"shirt",chinese:"衬衫",phonetic:"/ʃɜːrt/",example:"My shirt is blue.",tags:["衣服"]},
-{english:"pants",chinese:"裤子",phonetic:"/pænts/",example:"My pants are new.",tags:["衣服"]},
-{english:"dress",chinese:"裙子",phonetic:"/dres/",example:"She wears a dress.",tags:["衣服"]},
-{english:"shoe",chinese:"鞋子",phonetic:"/ʃuː/",example:"My shoes are dirty.",tags:["衣服"]},
-{english:"sock",chinese:"袜子",phonetic:"/sɒk/",example:"I wear socks.",tags:["衣服"]},
-{english:"coat",chinese:"外套",phonetic:"/koʊt/",example:"Wear your coat.",tags:["衣服"]},
-{english:"jacket",chinese:"夹克",phonetic:"/ˈdʒækɪt/",example:"My jacket is warm.",tags:["衣服"]},
-{english:"skirt",chinese:"短裙",phonetic:"/skɜːrt/",example:"She has a red skirt.",tags:["衣服"]},
-{english:"jeans",chinese:"牛仔裤",phonetic:"/dʒiːnz/",example:"I like blue jeans.",tags:["衣服"]},
-{english:"glasses",chinese:"眼镜",phonetic:"/ˈɡlæsɪz/",example:"I need glasses.",tags:["衣服"]},
-{english:"umbrella",chinese:"雨伞",phonetic:"/ʌmˈbrelə/",example:"Take an umbrella.",tags:["物品"]},
-{english:"pencil",chinese:"铅笔",phonetic:"/ˈpensl/",example:"I write with a pencil.",tags:["物品"]},
-{english:"eraser",chinese:"橡皮",phonetic:"/ɪˈreɪsər/",example:"I need an eraser.",tags:["物品"]},
-{english:"ruler",chinese:"尺子",phonetic:"/ˈruːlər/",example:"Use the ruler.",tags:["物品"]},
-{english:"knife",chinese:"刀",phonetic:"/naɪf/",example:"Be careful with the knife.",tags:["物品"]},
-{english:"spoon",chinese:"勺子",phonetic:"/spuːn/",example:"Eat with a spoon.",tags:["物品"]},
-{english:"fork",chinese:"叉子",phonetic:"/fɔːrk/",example:"Use a fork.",tags:["物品"]},
-{english:"plate",chinese:"盘子",phonetic:"/pleɪt/",example:"Put food on the plate.",tags:["物品"]},
-{english:"bowl",chinese:"碗",phonetic:"/boʊl/",example:"A bowl of rice.",tags:["物品"]},
-{english:"soap",chinese:"肥皂",phonetic:"/soʊp/",example:"Wash with soap.",tags:["物品"]},
-{english:"towel",chinese:"毛巾",phonetic:"/ˈtaʊəl/",example:"Dry with a towel.",tags:["物品"]},
-{english:"mirror",chinese:"镜子",phonetic:"/ˈmɪrər/",example:"Look in the mirror.",tags:["物品"]},
-{english:"lamp",chinese:"灯",phonetic:"/læmp/",example:"Turn on the lamp.",tags:["物品"]},
-{english:"toy",chinese:"玩具",phonetic:"/tɔɪ/",example:"This is my toy.",tags:["物品"]},
-{english:"gift",chinese:"礼物",phonetic:"/ɡɪft/",example:"This is a gift.",tags:["物品"]},
-{english:"map",chinese:"地图",phonetic:"/mæp/",example:"Look at the map.",tags:["物品"]},
-{english:"flag",chinese:"旗帜",phonetic:"/flæɡ/",example:"The flag is red.",tags:["物品"]},
-{english:"photo",chinese:"照片",phonetic:"/ˈfoʊtoʊ/",example:"Take a photo.",tags:["物品"]},
-{english:"candle",chinese:"蜡烛",phonetic:"/ˈkændl/",example:"Blow out the candle.",tags:["物品"]},
-{english:"guitar",chinese:"吉他",phonetic:"/ɡɪˈtɑːr/",example:"Play the guitar.",tags:["物品"]},
-{english:"piano",chinese:"钢琴",phonetic:"/piˈænoʊ/",example:"She plays piano.",tags:["物品"]},
-{english:"drum",chinese:"鼓",phonetic:"/drʌm/",example:"Beat the drum.",tags:["物品"]},
-{english:"river",chinese:"河流",phonetic:"/ˈrɪvər/",example:"The river is long.",tags:["自然"]},
-{english:"lake",chinese:"湖",phonetic:"/leɪk/",example:"Swim in the lake.",tags:["自然"]},
-{english:"sea",chinese:"大海",phonetic:"/siː/",example:"The sea is blue.",tags:["自然"]},
-{english:"mountain",chinese:"山",phonetic:"/ˈmaʊntn/",example:"Climb the mountain.",tags:["自然"]},
-{english:"hill",chinese:"小山",phonetic:"/hɪl/",example:"Walk up the hill.",tags:["自然"]},
-{english:"forest",chinese:"森林",phonetic:"/ˈfɒrɪst/",example:"Animals live in the forest.",tags:["自然"]},
-{english:"island",chinese:"岛屿",phonetic:"/ˈaɪlənd/",example:"The island is beautiful.",tags:["自然"]},
-{english:"desert",chinese:"沙漠",phonetic:"/ˈdezərt/",example:"The desert is hot.",tags:["自然"]},
-{english:"beach",chinese:"海滩",phonetic:"/biːtʃ/",example:"I play on the beach.",tags:["自然"]},
-{english:"rock",chinese:"石头",phonetic:"/rɒk/",example:"Sit on the rock.",tags:["自然"]},
-{english:"sand",chinese:"沙子",phonetic:"/sænd/",example:"Play in the sand.",tags:["自然"]},
-{english:"rainbow",chinese:"彩虹",phonetic:"/ˈreɪnboʊ/",example:"Look at the rainbow!",tags:["自然"]},
-{english:"cloud",chinese:"云",phonetic:"/klaʊd/",example:"The cloud is white.",tags:["天气"]},
-{english:"fog",chinese:"雾",phonetic:"/fɒɡ/",example:"I cannot see in the fog.",tags:["天气"]},
-{english:"storm",chinese:"暴风雨",phonetic:"/stɔːrm/",example:"The storm is strong.",tags:["天气"]},
-{english:"thunder",chinese:"雷",phonetic:"/ˈθʌndər/",example:"I hear thunder.",tags:["天气"]},
-{english:"lightning",chinese:"闪电",phonetic:"/ˈlaɪtnɪŋ/",example:"I see lightning.",tags:["天气"]},
-{english:"ice",chinese:"冰",phonetic:"/aɪs/",example:"The ice is cold.",tags:["天气"]},
-{english:"frost",chinese:"霜",phonetic:"/frɒst/",example:"Frost on the window.",tags:["天气"]},
-{english:"sunny",chinese:"晴天的",phonetic:"/ˈsʌni/",example:"It is sunny today.",tags:["天气"]},
-{english:"cloudy",chinese:"多云的",phonetic:"/ˈklaʊdi/",example:"It is cloudy.",tags:["天气"]},
-{english:"rainy",chinese:"下雨的",phonetic:"/ˈreɪni/",example:"It is rainy today.",tags:["天气"]},
-{english:"windy",chinese:"有风的",phonetic:"/ˈwɪndi/",example:"It is windy.",tags:["天气"]},
-{english:"Tuesday",chinese:"星期二",phonetic:"/ˈtjuːzdeɪ/",example:"I have class on Tuesday.",tags:["时间"]},
-{english:"Wednesday",chinese:"星期三",phonetic:"/ˈwenzdeɪ/",example:"Wednesday is the middle.",tags:["时间"]},
-{english:"Thursday",chinese:"星期四",phonetic:"/ˈθɜːrzdeɪ/",example:"Thursday is almost Friday.",tags:["时间"]},
-{english:"Friday",chinese:"星期五",phonetic:"/ˈfraɪdeɪ/",example:"I love Friday!",tags:["时间"]},
-{english:"Saturday",chinese:"星期六",phonetic:"/ˈsætərdeɪ/",example:"I play on Saturday.",tags:["时间"]},
-{english:"February",chinese:"二月",phonetic:"/ˈfebrueri/",example:"February is short.",tags:["时间"]},
-{english:"March",chinese:"三月",phonetic:"/mɑːrtʃ/",example:"March is in spring.",tags:["时间"]},
-{english:"April",chinese:"四月",phonetic:"/ˈeɪprəl/",example:"April is warm.",tags:["时间"]},
-{english:"May",chinese:"五月",phonetic:"/meɪ/",example:"May is beautiful.",tags:["时间"]},
-{english:"June",chinese:"六月",phonetic:"/dʒuːn/",example:"June is summer.",tags:["时间"]},
-{english:"July",chinese:"七月",phonetic:"/dʒuˈlaɪ/",example:"July is hot.",tags:["时间"]},
-{english:"August",chinese:"八月",phonetic:"/ˈɔːɡəst/",example:"August is vacation.",tags:["时间"]},
-{english:"September",chinese:"九月",phonetic:"/sepˈtembər/",example:"School starts in September.",tags:["时间"]},
-{english:"October",chinese:"十月",phonetic:"/ɒkˈtoʊbər/",example:"October is autumn.",tags:["时间"]},
-{english:"November",chinese:"十一月",phonetic:"/noʊˈvembər/",example:"November is cool.",tags:["时间"]},
-{english:"December",chinese:"十二月",phonetic:"/dɪˈsembər/",example:"December is winter.",tags:["时间"]},
-{english:"morning",chinese:"早上",phonetic:"/ˈmɔːrnɪŋ/",example:"Good morning!",tags:["时间"]},
-{english:"afternoon",chinese:"下午",phonetic:"/ˌæftərˈnuːn/",example:"Good afternoon!",tags:["时间"]},
-{english:"evening",chinese:"晚上",phonetic:"/ˈiːvnɪŋ/",example:"Good evening!",tags:["时间"]},
-{english:"night",chinese:"夜晚",phonetic:"/naɪt/",example:"Good night!",tags:["时间"]},
-{english:"today",chinese:"今天",phonetic:"/təˈdeɪ/",example:"What day is today?",tags:["时间"]},
-{english:"tomorrow",chinese:"明天",phonetic:"/təˈmɒroʊ/",example:"See you tomorrow.",tags:["时间"]},
-{english:"yesterday",chinese:"昨天",phonetic:"/ˈjestərdeɪ/",example:"I was busy yesterday.",tags:["时间"]},
-{english:"hour",chinese:"小时",phonetic:"/ˈaʊər/",example:"One hour is 60 minutes.",tags:["时间"]},
-{english:"minute",chinese:"分钟",phonetic:"/ˈmɪnɪt/",example:"Wait a minute.",tags:["时间"]},
-{english:"week",chinese:"星期",phonetic:"/wiːk/",example:"See you next week.",tags:["时间"]},
-{english:"month",chinese:"月",phonetic:"/mʌnθ/",example:"This month is busy.",tags:["时间"]},
-{english:"year",chinese:"年",phonetic:"/jɪr/",example:"Happy New Year!",tags:["时间"]},
-{english:"climb",chinese:"爬",phonetic:"/klaɪm/",example:"Climb the tree.",tags:["动词"]},
-{english:"jump",chinese:"跳",phonetic:"/dʒʌmp/",example:"Jump high!",tags:["动词"]},
-{english:"run",chinese:"跑",phonetic:"/rʌn/",example:"I can run fast.",tags:["动词"]},
-{english:"walk",chinese:"走",phonetic:"/wɔːk/",example:"Walk with me.",tags:["动词"]},
-{english:"sit",chinese:"坐",phonetic:"/sɪt/",example:"Sit down please.",tags:["动词"]},
-{english:"stand",chinese:"站",phonetic:"/stænd/",example:"Stand up!",tags:["动词"]},
-{english:"eat",chinese:"吃",phonetic:"/iːt/",example:"I eat lunch.",tags:["动词"]},
-{english:"drink",chinese:"喝",phonetic:"/drɪŋk/",example:"Drink some water.",tags:["动词"]},
-{english:"talk",chinese:"说话",phonetic:"/tɔːk/",example:"Let us talk.",tags:["动词"]},
-{english:"listen",chinese:"听",phonetic:"/ˈlɪsn/",example:"Listen to me.",tags:["动词"]},
-{english:"watch",chinese:"看",phonetic:"/wɒtʃ/",example:"Watch TV.",tags:["动词"]},
-{english:"think",chinese:"想",phonetic:"/θɪŋk/",example:"Let me think.",tags:["动词"]},
-{english:"know",chinese:"知道",phonetic:"/noʊ/",example:"I know the answer.",tags:["动词"]},
-{english:"want",chinese:"想要",phonetic:"/wɒnt/",example:"I want a book.",tags:["动词"]},
-{english:"need",chinese:"需要",phonetic:"/niːd/",example:"I need help.",tags:["动词"]},
-{english:"love",chinese:"爱",phonetic:"/lʌv/",example:"I love my family.",tags:["动词"]},
-{english:"ask",chinese:"问",phonetic:"/æsk/",example:"Ask a question.",tags:["动词"]},
-{english:"teach",chinese:"教",phonetic:"/tiːtʃ/",example:"She teaches me.",tags:["动词"]},
-{english:"learn",chinese:"学习",phonetic:"/lɜːrn/",example:"I learn English.",tags:["动词"]},
-{english:"bring",chinese:"带来",phonetic:"/brɪŋ/",example:"Bring me water.",tags:["动词"]},
-{english:"carry",chinese:"携带",phonetic:"/ˈkæri/",example:"Carry this bag.",tags:["动词"]},
-{english:"throw",chinese:"扔",phonetic:"/θroʊ/",example:"Throw the ball.",tags:["动词"]},
-{english:"catch",chinese:"接住",phonetic:"/kætʃ/",example:"Catch the ball!",tags:["动词"]},
-{english:"push",chinese:"推",phonetic:"/pʊʃ/",example:"Push the door.",tags:["动词"]},
-{english:"pull",chinese:"拉",phonetic:"/pʊl/",example:"Pull the rope.",tags:["动词"]},
-{english:"cut",chinese:"切",phonetic:"/kʌt/",example:"Cut the cake.",tags:["动词"]},
-{english:"fix",chinese:"修理",phonetic:"/fɪks/",example:"Fix the bike.",tags:["动词"]},
-{english:"send",chinese:"发送",phonetic:"/send/",example:"Send a message.",tags:["动词"]},
-{english:"call",chinese:"打电话",phonetic:"/kɔːl/",example:"Call me later.",tags:["动词"]},
-{english:"begin",chinese:"开始",phonetic:"/bɪˈɡɪn/",example:"Let us begin!",tags:["动词"]},
-{english:"finish",chinese:"完成",phonetic:"/ˈfɪnɪʃ/",example:"Finish your homework.",tags:["动词"]},
-{english:"remember",chinese:"记住",phonetic:"/rɪˈmembər/",example:"Remember this word.",tags:["动词"]},
-{english:"forget",chinese:"忘记",phonetic:"/fərˈɡet/",example:"Do not forget!",tags:["动词"]},
-{english:"choose",chinese:"选择",phonetic:"/tʃuːz/",example:"Choose one.",tags:["动词"]},
-{english:"move",chinese:"移动",phonetic:"/muːv/",example:"Move the chair.",tags:["动词"]},
-{english:"hide",chinese:"躲藏",phonetic:"/haɪd/",example:"Hide and seek!",tags:["动词"]},
-{english:"cry",chinese:"哭",phonetic:"/kraɪ/",example:"The baby cries.",tags:["动词"]},
-{english:"laugh",chinese:"笑",phonetic:"/læf/",example:"We laugh together.",tags:["动词"]},
-{english:"smile",chinese:"微笑",phonetic:"/smaɪl/",example:"She smiles at me.",tags:["动词"]},
-{english:"shout",chinese:"喊",phonetic:"/ʃaʊt/",example:"Do not shout.",tags:["动词"]},
-{english:"quiet",chinese:"安静的",phonetic:"/ˈkwaɪət/",example:"Be quiet!",tags:["形容词"]},
-{english:"loud",chinese:"大声的",phonetic:"/laʊd/",example:"Too loud!",tags:["形容词"]},
-{english:"hot",chinese:"热的",phonetic:"/hɒt/",example:"It is very hot.",tags:["形容词"]},
-{english:"warm",chinese:"温暖的",phonetic:"/wɔːrm/",example:"It is warm today.",tags:["形容词"]},
-{english:"dry",chinese:"干的",phonetic:"/draɪ/",example:"My clothes are dry.",tags:["形容词"]},
-{english:"wet",chinese:"湿的",phonetic:"/wet/",example:"My shoes are wet.",tags:["形容词"]},
-{english:"soft",chinese:"软的",phonetic:"/sɒft/",example:"The pillow is soft.",tags:["形容词"]},
-{english:"heavy",chinese:"重的",phonetic:"/ˈhevi/",example:"The box is heavy.",tags:["形容词"]},
-{english:"dark",chinese:"暗的",phonetic:"/dɑːrk/",example:"It is dark outside.",tags:["形容词"]},
-{english:"bright",chinese:"明亮的",phonetic:"/braɪt/",example:"The sun is bright.",tags:["形容词"]},
-{english:"thick",chinese:"厚的",phonetic:"/θɪk/",example:"The book is thick.",tags:["形容词"]},
-{english:"thin",chinese:"薄的",phonetic:"/θɪn/",example:"The paper is thin.",tags:["形容词"]},
-{english:"full",chinese:"满的",phonetic:"/fʊl/",example:"The cup is full.",tags:["形容词"]},
-{english:"empty",chinese:"空的",phonetic:"/ˈempti/",example:"The box is empty.",tags:["形容词"]},
-{english:"new",chinese:"新的",phonetic:"/njuː/",example:"I have a new book.",tags:["形容词"]},
-{english:"safe",chinese:"安全的",phonetic:"/seɪf/",example:"You are safe now.",tags:["形容词"]},
-{english:"dangerous",chinese:"危险的",phonetic:"/ˈdeɪndʒərəs/",example:"It is dangerous!",tags:["形容词"]},
-{english:"police",chinese:"警察",phonetic:"/pəˈliːs/",example:"Call the police.",tags:["职业"]},
-{english:"teacher",chinese:"老师",phonetic:"/ˈtiːtʃər/",example:"My teacher is nice.",tags:["职业"]},
-{english:"student",chinese:"学生",phonetic:"/ˈstjuːdnt/",example:"I am a student.",tags:["职业"]},
-{english:"worker",chinese:"工人",phonetic:"/ˈwɜːrkər/",example:"The worker is strong.",tags:["职业"]},
-{english:"soldier",chinese:"士兵",phonetic:"/ˈsoʊldʒər/",example:"The soldier is brave.",tags:["职业"]},
-{english:"singer",chinese:"歌手",phonetic:"/ˈsɪŋər/",example:"She is a singer.",tags:["职业"]},
-{english:"artist",chinese:"艺术家",phonetic:"/ˈɑːrtɪst/",example:"He is an artist.",tags:["职业"]},
-{english:"player",chinese:"运动员",phonetic:"/ˈpleɪər/",example:"He is a good player.",tags:["职业"]},
-{english:"king",chinese:"国王",phonetic:"/kɪŋ/",example:"The king is wise.",tags:["人物"]},
-{english:"queen",chinese:"王后",phonetic:"/kwiːn/",example:"The queen is beautiful.",tags:["人物"]},
-{english:"prince",chinese:"王子",phonetic:"/prɪns/",example:"The prince is young.",tags:["人物"]},
-{english:"princess",chinese:"公主",phonetic:"/ˌprɪnˈses/",example:"The princess is kind.",tags:["人物"]},
-{english:"neighbor",chinese:"邻居",phonetic:"/ˈneɪbər/",example:"My neighbor is friendly.",tags:["人物"]},
-{english:"classmate",chinese:"同学",phonetic:"/ˈklæsmeɪt/",example:"He is my classmate.",tags:["人物"]},
-{english:"zoo",chinese:"动物园",phonetic:"/zuː/",example:"I go to the zoo.",tags:["地点"]},
-{english:"park",chinese:"公园",phonetic:"/pɑːrk/",example:"Play in the park.",tags:["地点"]},
-{english:"store",chinese:"商店",phonetic:"/stɔːr/",example:"Go to the store.",tags:["地点"]},
-{english:"library",chinese:"图书馆",phonetic:"/ˈlaɪbreri/",example:"Read in the library.",tags:["地点"]},
-{english:"cinema",chinese:"电影院",phonetic:"/ˈsɪnəmə/",example:"Go to the cinema.",tags:["地点"]},
-{english:"museum",chinese:"博物馆",phonetic:"/mjuˈziːəm/",example:"Visit the museum.",tags:["地点"]},
-{english:"church",chinese:"教堂",phonetic:"/tʃɜːrtʃ/",example:"The church is old.",tags:["地点"]},
-{english:"tower",chinese:"塔",phonetic:"/ˈtaʊər/",example:"The tower is tall.",tags:["地点"]},
-{english:"bridge",chinese:"桥",phonetic:"/brɪdʒ/",example:"Cross the bridge.",tags:["地点"]},
-{english:"village",chinese:"村庄",phonetic:"/ˈvɪlɪdʒ/",example:"The village is small.",tags:["地点"]},
-{english:"city",chinese:"城市",phonetic:"/ˈsɪti/",example:"The city is big.",tags:["地点"]},
-{english:"country",chinese:"国家",phonetic:"/ˈkʌntri/",example:"My country is China.",tags:["地点"]},
-{english:"subway",chinese:"地铁",phonetic:"/ˈsʌbweɪ/",example:"Take the subway.",tags:["交通"]},
-{english:"truck",chinese:"卡车",phonetic:"/trʌk/",example:"The truck is big.",tags:["交通"]},
-{english:"motorcycle",chinese:"摩托车",phonetic:"/ˈmoʊtərsaɪkl/",example:"He rides a motorcycle.",tags:["交通"]},
-{english:"helicopter",chinese:"直升机",phonetic:"/ˈhelɪkɒptər/",example:"A helicopter flies.",tags:["交通"]},
-{english:"ship",chinese:"轮船",phonetic:"/ʃɪp/",example:"The ship sails.",tags:["交通"]},
-{english:"taxi",chinese:"出租车",phonetic:"/ˈtæksi/",example:"Take a taxi.",tags:["交通"]},
-{english:"ticket",chinese:"票",phonetic:"/ˈtɪkɪt/",example:"Buy a ticket.",tags:["交通"]},
-{english:"sad",chinese:"伤心的",phonetic:"/sæd/",example:"I feel sad.",tags:["情感"]},
-{english:"scared",chinese:"害怕的",phonetic:"/skerd/",example:"I am scared.",tags:["情感"]},
-{english:"surprised",chinese:"惊讶的",phonetic:"/sərˈpraɪzd/",example:"I am surprised!",tags:["情感"]},
-{english:"proud",chinese:"自豪的",phonetic:"/praʊd/",example:"I am proud of you.",tags:["情感"]},
-{english:"lonely",chinese:"孤独的",phonetic:"/ˈloʊnli/",example:"I feel lonely.",tags:["情感"]},
-{english:"worried",chinese:"担心的",phonetic:"/ˈwɜːrid/",example:"I am worried.",tags:["情感"]},
-{english:"nervous",chinese:"紧张的",phonetic:"/ˈnɜːrvəs/",example:"I feel nervous.",tags:["情感"]},
-{english:"wonderful",chinese:"精彩的",phonetic:"/ˈwʌndərfl/",example:"It is wonderful!",tags:["情感"]},
-{english:"terrible",chinese:"糟糕的",phonetic:"/ˈterəbl/",example:"That is terrible.",tags:["情感"]}
-];
-        
         container.innerHTML = levels.map((label, i) => {
             const count = this.words.filter(w => w.masteryLevel === i).length;
             const percent = this.words.length > 0 ? (count / this.words.length * 100) : 0;
@@ -1898,8 +1642,8 @@ const app = new WordPilotApp();
 <div id="page-phrases" class="page">
   <h2 style="text-align:center;margin-bottom:16px">常用短语 & 日常对话</h2>
   <div class="section-switch">
-    <button class="tag-btn active" onclick="app.showSection('phrases')" id="sec-phrases">短语</button>
-    <button class="tag-btn" onclick="app.showSection('conversations')" id="sec-convs">对话</button>
+    <button class="tag-btn active" onclick="showSection('phrases')" id="sec-phrases">短语</button>
+    <button class="tag-btn" onclick="showSection('conversations')" id="sec-convs">对话</button>
   </div>
   <div id="phrase-section">
     <div id="phrase-cat-filter" class="tag-filter"></div>
