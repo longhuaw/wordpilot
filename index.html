@@ -856,7 +856,16 @@ body {
             <div class="stat-row-left"><i class="fas fa-info-circle" style="color:#3498db"></i><span>版本</span></div>
             <span class="stat-row-right" style="color:#999">1.0.0</span>
         </div>
-        <div class="stat-row" style="cursor:pointer" onclick="app.resetData()">
+        
+        <div class="stat-row" style="cursor:pointer" onclick="app.exportData()">
+            <div class="stat-row-left"><i class="fas fa-download" style="color:#3498db"></i><span style="color:#3498db">导出学习数据</span></div>
+            <i class="fas fa-chevron-right" style="color:#ccc"></i>
+        </div>
+        <div class="stat-row" style="cursor:pointer" onclick="app.importData()">
+            <div class="stat-row-left"><i class="fas fa-upload" style="color:#2ecc71"></i><span style="color:#2ecc71">导入学习数据</span></div>
+            <i class="fas fa-chevron-right" style="color:#ccc"></i>
+        </div>
+<div class="stat-row" style="cursor:pointer" onclick="app.resetData()">
             <div class="stat-row-left"><i class="fas fa-redo" style="color:#e74c3c"></i><span style="color:#e74c3c">重置词汇数据</span></div>
             <i class="fas fa-chevron-right" style="color:#ccc"></i>
         </div>
@@ -1241,6 +1250,18 @@ try { _phrases = PHRASES_DATA; } catch(e) {}
 try { _convs = CONVS_DATA; } catch(e) {}
 try { _grammar = GRAMMAR_DATA; } catch(e) {}
 
+
+// Global speak function for phrases and conversations
+function speakText(text) {
+    if ('speechSynthesis' in window) {
+        speechSynthesis.cancel();
+        var u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-GB';
+        u.rate = 0.8;
+        speechSynthesis.speak(u);
+    }
+}
+
 function initNewFeatures() { renderPhrases(); renderConversations(); renderGrammar(); }
 
 var selectedPhraseCat = null;
@@ -1274,7 +1295,7 @@ function renderPhrases() {
         cats.map(function(c) { return '<button class="tag-btn ' + (selectedPhraseCat === c ? 'active' : '') + '" onclick="filterPhraseCat(\'' + c + '\')">' + c + '</button>'; }).join('');
     var filtered = selectedPhraseCat ? phrases.filter(function(p) { return p.category === selectedPhraseCat; }) : phrases;
     container.innerHTML = filtered.map(function(p) {
-        return '<div class="phrase-card"><span class="phrase-cat-badge">' + p.category + '</span><div class="phrase-english">' + p.english + '</div><div class="phrase-chinese">' + p.chinese + '</div><div class="phrase-example">' + p.example + '</div></div>';
+        return '<div class="phrase-card"><span class="phrase-cat-badge">' + p.category + '</span><div class="phrase-english">' + p.english + ' <i class="fas fa-volume-up" style="font-size:14px;color:var(--primary);cursor:pointer;margin-left:8px" onclick="event.stopPropagation();speakText(\'' + p.english.replace(/'/g, "\\'") + '\')"></i></div><div class="phrase-chinese">' + p.chinese + '</div><div class="phrase-example">' + p.example + '</div></div>';
     }).join('');
 }
 function filterPhraseCat(cat) { selectedPhraseCat = cat; renderPhrases(); }
@@ -1287,7 +1308,7 @@ function renderConversations() {
         container.innerHTML = '<button class="conv-back-btn" onclick="closeConv()"><i class="fas fa-arrow-left"></i> 返回</button>' +
             '<h3 style="margin-bottom:16px">' + conv.title + ' <span style="color:#999;font-size:14px">' + conv.titleEn + '</span></h3>' +
             conv.lines.map(function(line, i) {
-                return '<div class="conv-line ' + (i % 2 === 0 ? 'left' : 'right') + '"><div class="conv-role">' + (i % 2 === 0 ? 'A' : 'B') + '</div><div class="conv-en">' + line.en + '</div><div class="conv-zh">' + line.zh + '</div></div>';
+                return '<div class="conv-line ' + (i % 2 === 0 ? 'left' : 'right') + '"><div class="conv-role">' + (i % 2 === 0 ? 'A' : 'B') + '</div><div class="conv-en">' + line.en + ' <i class="fas fa-volume-up" style="font-size:12px;color:var(--primary);cursor:pointer;margin-left:6px" onclick="event.stopPropagation();speakText(\'' + line.en.replace(/'/g, "\\'") + '\')"></i></div><div class="conv-zh">' + line.zh + '</div></div>';
             }).join('');
     } else {
         container.innerHTML = CONVS_DATA.map(function(conv, i) {
@@ -1550,7 +1571,7 @@ class WordPilotApp {
         if ('speechSynthesis' in window) {
             speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(word.english);
-            utterance.lang = 'en-US';
+            utterance.lang = 'en-GB';
             utterance.rate = 0.8;
             speechSynthesis.speak(utterance);
         }
@@ -1667,7 +1688,7 @@ class WordPilotApp {
         if ('speechSynthesis' in window) {
             speechSynthesis.cancel();
             const utterance = new SpeechSynthesisUtterance(word);
-            utterance.lang = 'en-US';
+            utterance.lang = 'en-GB';
             utterance.rate = 0.8;
             speechSynthesis.speak(utterance);
         }
@@ -1836,6 +1857,52 @@ class WordPilotApp {
             alert('数据已重置！');
         }
     }
+
+    
+    exportData() {
+        var data = { words: this.words, sessions: this.sessions, version: 2 };
+        var blob = new Blob([JSON.stringify(data)], {type: "application/json"});
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "wordpilot_backup_" + new Date().toISOString().slice(0,10) + ".json";
+        a.click();
+        URL.revokeObjectURL(url);
+        alert("导出成功！文件已下载。");
+    }
+    
+    importData() {
+        var input = document.createElement("input");
+        input.type = "file";
+        input.accept = ".json";
+        input.onchange = function(e) {
+            var file = e.target.files[0];
+            if (!file) return;
+            var reader = new FileReader();
+            reader.onload = function(ev) {
+                try {
+                    var data = JSON.parse(ev.target.result);
+                    if (data.words && data.sessions) {
+                        if (confirm("确定要导入学习数据吗？当前进度将被覆盖。")) {
+                            this.words = data.words;
+                            this.sessions = data.sessions;
+                            this.saveWords();
+                            this.saveSessions();
+                            this.render();
+                            alert("导入成功！");
+                        }
+                    } else {
+                        alert("无效的备份文件！");
+                    }
+                } catch(ex) {
+                    alert("文件解析失败，请检查文件格式。");
+                }
+            }.bind(this);
+            reader.readAsText(file);
+        }.bind(this);
+        input.click();
+    }
+
     
     calculateStreak() {
         let streak = 0;
